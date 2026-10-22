@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><defs>
+<filter id="sh" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".55"/></filter>
+</defs><defs>
+<linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bae6fd"/><stop offset=".5" stop-color="#38bdf8"/><stop offset="1" stop-color="#0369a1"/></linearGradient>
+</defs><g filter="url(#sh)"><path d="M64 16 C64 16 28 60 28 80 A36 34 0 0 0 100 80 C100 60 64 16 64 16 Z" fill="url(#water)" stroke="#4a2503" stroke-width="3.5" stroke-linejoin="round" /><ellipse cx="50" cy="80" rx="7" ry="12" fill="#fff" opacity=".6"/></g></svg>

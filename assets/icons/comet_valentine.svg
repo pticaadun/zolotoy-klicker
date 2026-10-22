@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><defs>
+<filter id="sh" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".55"/></filter>
+</defs><defs>
+<radialGradient id="pink" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#fff1f2"/><stop offset=".35" stop-color="#fb7185"/><stop offset=".8" stop-color="#be123c"/><stop offset="1" stop-color="#881337"/></radialGradient>
+<radialGradient id="glowG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff3b0" stop-opacity=".9"/><stop offset=".6" stop-color="#fbbf24" stop-opacity=".35"/><stop offset="1" stop-color="#fbbf24" stop-opacity="0"/></radialGradient>
+</defs><g filter="url(#sh)"><circle cx="64" cy="64" r="60" fill="url(#glowG)"/><path d="M64 112 C30 88 12 68 14 46 C16 26 36 16 52 24 C58 27 62 32 64 38 C66 32 70 27 76 24 C92 16 112 26 114 46 C116 68 98 88 64 112 Z" fill="url(#pink)" stroke="#4a2503" stroke-width="3.5" stroke-linejoin="round" /><ellipse cx="40" cy="44" rx="11" ry="7" fill="#fff" opacity=".7" transform="rotate(-35 40 44)"/><path d="M96.0,33.0 L97.5,38.5 L103.0,40.0 L97.5,41.5 L96.0,47.0 L94.5,41.5 L89.0,40.0 L94.5,38.5Z" fill="#fff" opacity=".9"/></g></svg>

@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><defs>
+<filter id="sh" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".55"/></filter>
+</defs><g filter="url(#sh)"><path d="M14 64 Q64 0 114 64 Q100 56 89 64 Q76 54 64 64 Q52 54 39 64 Q28 56 14 64 Z" fill="#f97316" stroke="#4a2503" stroke-width="3.5" stroke-linejoin="round" /><path d="M64 14 Q50 30 39 64 Q52 54 64 64 Z" fill="#fde047" stroke="#4a2503" stroke-width="0" stroke-linejoin="round" /><path d="M64 64 L64 104 Q64 114 54 112" fill="none" stroke="#4a2503" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g></svg>

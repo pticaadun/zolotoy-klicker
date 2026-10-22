@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Золотой Кликер: Тап-Империя</title>
+    <link rel="stylesheet" href="style.css?v=1792673328">
+    <script>document.documentElement.classList.add('booting');setTimeout(function(){document.documentElement.classList.remove('booting')},6000);</script>
+    <script src="vk-bridge.js"></script>
+    <script src="vk-platform.js?v=1792673328"></script>
+</head>
+<body>
+    <div id="app">
+
+        <!-- Верхняя панель (Счёт и доход) -->
+        <header id="header">
+            <div class="top-row">
+                <button id="btn-settings-open" class="icon-btn" title="Настройки"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/ui_settings.svg" alt="" draggable="false"></button>
+                <button id="btn-stats" class="icon-btn" title="Статистика и рейтинг"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/ui_stats.svg" alt="" draggable="false"></button>
+                <button id="btn-wheel-open" class="icon-btn wheel-icon-btn" title="Колесо Фортуны">
+                    <img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/ui_wheel.svg" alt="" draggable="false"><span class="wheel-free-dot hidden" id="wheel-dot"></span>
+                </button>
+                <!-- Все валюты в одной плашке -->
+                <div class="currency-pill" id="currency-pill">
+                    <div class="prestige-badge" id="prestige-badge" title="Престижные Кристаллы (нажмите для справки)">
+                        <img loading="lazy" decoding="async" class="cur-ic" src="assets/icons/cur_gem.svg" alt="" draggable="false"><span id="gems-count">0</span>
+                    </div>
+                    <div class="prestige-badge chips-badge" id="chips-badge" title="Небесные Звёзды Вознесения (нажмите для справки)">
+                        <img loading="lazy" decoding="async" class="cur-ic" src="assets/icons/cur_chip.svg" alt="" draggable="false"><span id="chips-count">0</span>
+                    </div>
+                    <div class="prestige-badge sugar-badge" id="sugar-badge" title="Астральные Сферы: конденсируются из энергии космоса и навсегда усиливают предприятия!">
+                        <img loading="lazy" decoding="async" class="cur-ic" src="assets/icons/cur_sphere.svg" alt="" draggable="false"><span id="sugar-lumps-count">1</span>
+                    </div>
+                </div>
+                <button id="btn-reward-ad" class="btn-boost" title="Посмотреть рекламу: доход x2 на 2 минуты">
+                    <img loading="lazy" decoding="async" class="ui-ic boost-ic" src="assets/icons/ui_boost.svg" alt="" draggable="false"><span class="boost-label">x2 БУСТ</span><span class="boost-ad-tag">▶ реклама</span>
+                </button>
+            </div>
+
+            <!-- Индикатор супер-режима x5 -->
+            <div id="mega-boost-bar" class="mega-boost-bar hidden">
+                ⚡ МЕГА-РЕЖИМ x5: <span id="mega-boost-timer">180с</span>
+            </div>
+
+            <!-- Баннер Золотого Дождя -->
+            <div id="rain-banner" class="rain-banner hidden">
+                🌧️ <b>ЗОЛОТОЙ ДОЖДЬ:</b> Ловите падающие сокровища! (<span id="rain-timer">15</span>с)
+            </div>
+
+            <!-- Главный баланс -->
+            <div class="score-card">
+                <div class="score-label" id="game-title-logo" title="Тап-Империя ⚡ (Секрет: кликни 7 раз!)">ТАП-ИМПЕРИЯ ⚡</div>
+                <div class="score-value-row">
+                    <span class="coin-glow"><img loading="lazy" decoding="async" class="coin-glow-ic" src="assets/icons/cur_coin.svg" alt="" draggable="false"></span>
+                    <span id="score">0</span>
+                </div>
+                <div class="income-row">
+                    <span class="income-badge">👆 Тап: <b id="per-click">+1</b></span>
+                    <span class="income-badge">⚡ В сек: <b id="per-second">+0</b></span>
+                </div>
+            </div>
+
+            <!-- Шкала комбо / Fever Mode -->
+            <div class="fever-container fever-idle">
+                <div class="fever-bar">
+                    <div class="fever-fill" id="fever-fill"></div>
+                    <span class="fever-text" id="fever-text">🔥 Комбо x1</span>
+                </div>
+            </div>
+
+            <!-- Активные баффы в стиле Cookie Clicker (Безумие x7, Клик-Безумие x777, Мега-Буст) -->
+            <div id="buffs-bar" class="buffs-bar hidden"></div>
+
+            <!-- Бегущая строка новостей Империи в стиле Cookie Clicker -->
+            <div id="news-ticker-container" class="news-ticker-container" title="Хроники Империи (Кликните для свежих слухов!)">
+                <span class="news-ticker-badge">📰 Вестник</span>
+                <div class="news-ticker-track">
+                    <span id="news-ticker-text" class="news-ticker-text">Загрузка имперских хроник...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Основная область тапа (Большая 3D-монета) -->
+        <main id="tap-arena">
+            <!-- Слой падающих сокровищ дождя -->
+            <div id="rain-layer" class="rain-layer"></div>
+
+            <!-- Сезонная гирлянда вверху поля -->
+            <div class="season-garland" aria-hidden="true"></div>
+            <div id="coin-wrapper">
+                <!-- Центрированное свечение и лучи прямо по центру монетки -->
+                <div class="bg-glow" id="coin-bg-glow"></div>
+                <div class="sunburst" id="coin-sunburst"></div>
+
+                <!-- Слой Пиявок-Копилок Апокалипсиса (Wrinklers) -->
+                <div id="wrinklers-layer" class="wrinklers-layer"></div>
+
+                <div id="coin" class="coin-3d skin-classic" role="button" tabindex="0">
+                    <div class="coin-inner">
+                        <div class="coin-front">
+                            <div class="coin-crest-svg">
+                                <svg viewBox="0 0 100 100" class="coin-emblem-vector">
+                                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="4 2"/>
+                                    <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <div class="coin-icon-img" id="coin-icon">👑</div>
+                            <div class="coin-ring"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопки на поле: слева — награда и магазин, справа — сезон, ярмарка и пропуск -->
+            <div class="fab-col fab-left">
+                <button id="daily-fab" class="daily-fab hidden" type="button" title="Награда за вход"><img loading="lazy" decoding="async" src="assets/icons/ui_daily.svg" alt="" draggable="false"><span class="daily-fab-label">Награда</span><span class="wheel-free-dot hidden" id="daily-dot"></span></button>
+            <button id="shop-fab" class="shop-fab" title="Магазин">
+                <span class="shop-fab-icon"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/ui_shop.svg" alt="" draggable="false"></span>
+                <span class="shop-fab-label">Магазин</span>
+                <span class="shop-fab-dot" id="shop-fab-dot"></span>
+            </button>
+            </div>
+            <div class="fab-col fab-right">
+                <button id="season-btn" class="season-btn hidden" title="Сезон"></button>
+                <button id="weekend-chip" class="weekend-chip hidden" type="button" title="Ярмарка выходных"></button>
+                <button id="pass-fab" class="pass-fab hidden" type="button" title="Имперский пропуск"><img src="assets/icons/x_pass.svg" alt="" draggable="false"><span class="pass-fab-lvl">0</span><span class="pass-fab-label">Пропуск</span><span class="wheel-free-dot hidden"></span></button>
+            </div>
+
+            <!-- Приглашение на событие (торговец, мини-игры) -->
+            <div id="event-invite" class="event-invite hidden" role="status" aria-live="polite"></div>
+
+            <!-- Подсказка новичку -->
+            <div id="tutorial-hint" class="tutorial-hint hidden" role="status" aria-live="polite"></div>
+            <!-- Цель на сессию (ближайшее открытие / вознесение) -->
+            <button id="session-goal" class="session-goal hidden" type="button"></button>
+
+            <!-- Интерактивный Питомец-Компаньон -->
+            <div id="pet-companion" class="pet-companion-box" title="Ваш питомец! Кликните, чтобы погладить">
+                <div class="pet-bubble hidden" id="pet-speech">Привет, Босс! 🐾</div>
+                <div class="pet-sprite" id="pet-sprite">🐱</div>
+                <div class="pet-info-pill" id="pet-info-pill">Кот-Банкир (ур. 1)</div>
+            </div>
+
+            <!-- Летающий случайный бонус (Золотая Комета или Багровое Затмение) -->
+            <div id="floating-bonus" class="hidden bonus-golden">
+                <div class="bonus-box">
+                    <div class="comet-tail" id="comet-tail"></div>
+                    <img loading="lazy" decoding="async" class="comet-head" id="comet-head" src="assets/icons/comet_gold.svg" alt="" draggable="false">
+                    <span class="bonus-gift-wrap hidden" id="bonus-gift-icon"></span>
+                </div>
+            </div>
+        </main>
+        <!-- Город империи: стоит на верхнем краю шторки и растёт вместе с предприятиями -->
+        <div id="city-layer" class="city-layer" aria-hidden="true"></div>
+
+        <!-- Нижняя шторка с вкладками (Улучшения, Автоматизация, Питомцы, Задания, Скины, Артефакты, Престиж, Достижения) -->
+        <div id="drawer">
+            <div class="drawer-handle" id="drawer-toggle">
+                <div class="handle-bar"></div>
+                <span class="handle-title">Магазин и улучшения</span>
+            </div>
+
+            <nav id="tabs-nav">
+                <button class="tab-btn nav-main active" data-tab="click-upgrades"><span class="tab-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_click.svg" alt="" draggable="false"></span><span class="tab-lb">Клик</span></button>
+                <button class="tab-btn nav-main" data-tab="auto-upgrades"><span class="tab-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_business.svg" alt="" draggable="false"></span><span class="tab-lb">Бизнес</span></button>
+                <button class="tab-btn nav-main" data-tab="pets-tab"><span class="tab-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_pets.svg" alt="" draggable="false"></span><span class="tab-lb">Питомцы</span></button>
+                <button class="tab-btn nav-main" data-tab="quests-tab"><span class="tab-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_quests.svg" alt="" draggable="false"></span><span class="tab-lb">Задания</span><span id="quests-badge" class="nav-badge hidden">0</span></button>
+                <button class="tab-btn nav-main nav-more" data-tab="more-tab" id="nav-more-btn"><span class="tab-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_more.svg" alt="" draggable="false"></span><span class="tab-lb">Ещё</span><span id="more-badge" class="nav-badge hidden">!</span></button>
+                <!-- Разделы меню «Ещё» (кнопки скрыты, но работают — на них завязаны блокировки и значки) -->
+                <button class="tab-btn nav-sub" data-tab="skins-tab">🎨 Скины</button>
+                <button class="tab-btn nav-sub" data-tab="artifacts-tab">🔮 Артефакты</button>
+                <button class="tab-btn nav-sub" data-tab="prestige-tab">🌌 Вознесение</button>
+                <button class="tab-btn nav-sub" data-tab="achievements-tab">🏆 Достижения</button>
+            </nav>
+
+            <div id="tab-content-area">
+                <!-- Вкладка: Улучшения клика -->
+                <div id="tab-click-upgrades" class="tab-pane active">
+                    <div class="buy-amount-row" id="buy-amount-click"><span class="buy-amount-label">Покупать:</span><button class="buy-amount-btn" data-amount="1">×1</button><button class="buy-amount-btn" data-amount="10">×10</button><button class="buy-amount-btn" data-amount="100">×100</button><button class="buy-amount-btn" data-amount="max">Макс</button><button class="auto-chip hidden" type="button" title="Автоматизация">🤖<i></i></button></div>
+                    <div class="upgrade-shelf hidden" id="shelf-click"></div>
+                    <div class="upgrades-list" id="click-upgrades-list"></div>
+                </div>
+
+                <!-- Вкладка: Автодоход / Бизнес -->
+                <div id="tab-auto-upgrades" class="tab-pane">
+                    <div class="business-subtabs">
+                        <button class="subtab-btn active" id="subtab-buildings" data-sub="buildings"><img loading="lazy" decoding="async" class="sub-ic" src="assets/icons/sub_buildings.svg" alt="" draggable="false">Предприятия</button>
+                        <button class="subtab-btn" id="subtab-synergies" data-sub="synergies"><img loading="lazy" decoding="async" class="sub-ic" src="assets/icons/sub_synergies.svg" alt="" draggable="false">Синергии</button>
+                        <button class="subtab-btn" id="subtab-grimoire" data-sub="grimoire"><img loading="lazy" decoding="async" class="sub-ic" src="assets/icons/sub_grimoire.svg" alt="" draggable="false">Альманах</button>
+                        <button class="subtab-btn" id="subtab-pact" data-sub="pact"><img loading="lazy" decoding="async" class="sub-ic" src="assets/icons/sub_pact.svg" alt="" draggable="false">Путь</button>
+                        <button class="subtab-btn" id="subtab-market" data-sub="market"><img loading="lazy" decoding="async" class="sub-ic" src="assets/icons/sub_market.svg" alt="" draggable="false">Биржа</button>
+                        <button class="subtab-btn" id="subtab-temple" data-sub="temple"><img loading="lazy" decoding="async" class="sub-ic" src="assets/icons/sub_temple.svg" alt="" draggable="false">Совет</button>
+                    </div>
+                    <div class="buy-amount-row" id="buy-amount-auto"><span class="buy-amount-label">Покупать:</span><button class="buy-amount-btn" data-amount="1">×1</button><button class="buy-amount-btn" data-amount="10">×10</button><button class="buy-amount-btn" data-amount="100">×100</button><button class="buy-amount-btn" data-amount="max">Макс</button><button class="auto-chip hidden" type="button" title="Автоматизация">🤖<i></i></button></div>
+                    <div class="upgrade-shelf hidden" id="shelf-auto"></div>
+                    <div class="upgrades-list" id="auto-upgrades-list"></div>
+                    <div class="upgrades-list hidden" id="synergies-list"></div>
+                    <div class="upgrades-list hidden" id="pact-panel"></div>
+                    <div class="upgrades-list hidden" id="market-panel"></div>
+                    <div class="upgrades-list hidden" id="temple-panel"></div>
+                    <div class="upgrades-list hidden" id="grimoire-panel">
+                        <div class="grimoire-header-card">
+                            <div class="grimoire-title-row">
+                                <span class="grimoire-badge">🔮 АЛЬМАНАХ ВОЛШЕБНИКА</span>
+                                <span class="grimoire-mana-val" id="grimoire-mana-text">Мана: 100 / 100</span>
+                            </div>
+                            <div class="grimoire-mana-bar">
+                                <div class="grimoire-mana-fill" id="grimoire-mana-fill" style="width: 100%;"></div>
+                            </div>
+                            <div class="grimoire-mana-sub">Мана восстанавливается: +1 ед. каждые 3 секунды</div>
+                        </div>
+                        <div class="spells-list" id="spells-list"></div>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Питомцы -->
+                <div id="tab-pets-tab" class="tab-pane">
+                    <div class="pets-header-banner">
+                        <div class="pets-banner-title">🐾 <b>Питомцы-Компаньоны</b></div>
+                        <p class="pets-banner-sub">Верные спутники приносят пассивные множители, кликают за вас, ловят кометы и усиливают критический урон!</p>
+                    </div>
+                    <button class="exp-entry" id="btn-open-exp" type="button"><img src="assets/icons/ex_map.svg" alt="" draggable="false"><span><b>Экспедиции</b><small>Отправьте питомца в поход за добычей</small></span><span class="exp-entry-dot hidden"></span><i class="exp-entry-arrow">›</i></button>
+                    <div class="pets-grid" id="pets-list"></div>
+                </div>
+
+                <!-- Вкладка: Задания -->
+                <div id="tab-quests-tab" class="tab-pane">
+                    <div id="day-rule-card" class="daily-ch-card day-rule-card hidden"></div>
+                    <div id="daily-ch-card" class="daily-ch-card"></div>
+                    <div id="week-boss-card" class="daily-ch-card week-boss-card hidden"></div>
+                    <div id="theme-week-card" class="daily-ch-card week-boss-card theme-week-card hidden"></div>
+                    <div class="quests-header-banner">
+                        <div class="quests-banner-title">📜 <b>Имперские Задания</b></div>
+                        <p class="quests-banner-sub">Выполняйте испытания, получайте золото, редкие кристаллы и приятные награды!</p>
+                    </div>
+                    <div class="quests-filter-row">
+                        <button class="quest-filter-btn active" data-filter="daily">📅 Ежедневные <span id="daily-timer-badge" class="quest-timer-chip">--:--</span></button>
+                        <button class="quest-filter-btn" data-filter="weekly">🗓️ Еженедельные <span id="weekly-timer-badge" class="quest-timer-chip">--д</span></button>
+                        <button class="quest-filter-btn" data-filter="story">🏆 Основные</button>
+                        <button class="quest-filter-btn" data-filter="pass">🎫 Пропуск <span id="pass-tasks-badge" class="quest-timer-chip pt-badge hidden">0</span></button>
+                    </div>
+                    <div class="quests-list" id="quests-list"></div>
+                </div>
+
+                <!-- Вкладка: Скины монеты -->
+                <div id="tab-skins-tab" class="tab-pane">
+                    <div class="skins-desc-banner">
+                        🎨 <b>Гардероб Империи:</b> меняйте 3D-монету и получайте уникальные бонусы к доходу!
+                    </div>
+                    <div class="skins-grid" id="skins-list"></div>
+                </div>
+
+                <!-- Вкладка: Древо Артефактов -->
+                <div id="tab-artifacts-tab" class="tab-pane">
+                    <div class="artifacts-header-banner">
+                        <div class="artifacts-title-row">
+                            <span class="artifacts-title">🔮 <b>Древо Артефактов Древних</b></span>
+                            <span class="artifacts-gems-badge"><img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_gem.svg" alt="" draggable="false"><span id="art-gems-count">0</span></span>
+                        </div>
+                        <p class="artifacts-desc">Изучайте реликвии за Кристаллы Престижа. Все бонусы сохраняются при перерождениях навсегда!</p>
+                    </div>
+                    <div class="artifact-branches" id="artifact-branches-container"></div>
+                </div>
+
+                <!-- Вкладка: Вознесение (Cookie Clicker Ascension) -->
+                <div id="tab-prestige-tab" class="tab-pane"><i class="asc-shoot" aria-hidden="true"></i><i class="asc-shoot s2" aria-hidden="true"></i>
+                    <div class="prestige-view">
+                        <div class="prestige-icon pulse-glow"><img loading="lazy" decoding="async" class="prestige-big-ic" src="assets/icons/tab_ascension.svg" alt="" draggable="false"></div>
+                        <h3>Космическое Вознесение</h3>
+                        <p class="prestige-desc">
+                            Растворите материальный мир и вознеситесь в Астрал! Каждый заработанный дублон увеличивает ваш <b>Небесный Уровень</b>, давая <b>+10% ко всей добыче навсегда</b> (+15% с «Наследием Предков»). За каждый новый уровень вы получаете <b>Небесные Звёзды</b> для разблокировки постоянных слотов и космических талантов!
+                        </p>
+                        
+                        <div class="prestige-target-box">
+                            <div class="prestige-req-row">
+                                <span>✨ Текущий небесный бонус:</span>
+                                <b id="ascend-cur-level" class="highlight-cyan">+0% (ур. 0)</b>
+                            </div>
+                            <div class="prestige-req-row" style="margin-top: 6px;">
+                                <span><img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_chip.svg" alt="" draggable="false"> Звёзд за вознесение:</span>
+                                <b id="ascend-gain-chips" class="highlight">+0 <img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_chip.svg" alt="" draggable="false"></b>
+                            </div>
+                            <div class="prestige-progress-bar-wrap" style="margin-top: 10px;">
+                                <div class="prestige-progress-bar-fill" id="ascend-progress-fill"></div>
+                            </div>
+                            <div class="prestige-progress-text" id="ascend-progress-text">—</div>
+                        </div>
+
+                        <div class="ascend-action-buttons">
+                            <button id="btn-ascend-now" class="btn btn-prestige" disabled>
+                                <img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_chip.svg" alt="" draggable="false"> <span>Вознестись</span>
+                            </button>
+                            <button id="btn-open-astral-tree" class="btn btn-view-astral">
+                                🔮 Открыть Карту Небесного Древа
+                            </button>
+                        </div>
+
+                        <!-- Трансцендентность: второй слой престижа -->
+                        <div id="transcend-box" class="transcend-box hidden"></div>
+                        <!-- Испытания (открываются после первого вознесения) -->
+                        <div id="challenges-box" class="challenges-box hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Достижения -->
+                <!-- Вкладка: Ещё (плитки разделов) -->
+                <div id="tab-more-tab" class="tab-pane">
+                    <div class="more-grid" id="more-grid">
+                        <button class="more-tile" data-go="skins-tab"><span class="more-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_skins.svg" alt="" draggable="false"></span><span class="more-name">Скины</span><span class="more-sub">Облик монеты и бонусы</span></button>
+                        <button class="more-tile" data-go="artifacts-tab"><span class="more-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_artifacts.svg" alt="" draggable="false"></span><span class="more-name">Артефакты</span><span class="more-sub">Вечные бонусы за 💎</span></button>
+                        <button class="more-tile" data-go="prestige-tab"><span class="more-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_ascension.svg" alt="" draggable="false"></span><span class="more-name">Вознесение</span><span class="more-sub">Престиж и испытания</span></button>
+                        <button class="more-tile" data-open="pass"><span class="more-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/x_pass.svg" alt="" draggable="false"></span><span class="more-name">Имперский пропуск</span><span class="more-sub">Сезонные награды</span></button>
+                        <button class="more-tile" data-open="weekend"><span class="more-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/x_fair.svg" alt="" draggable="false"></span><span class="more-name">Ярмарка выходных</span><span class="more-sub" id="more-weekend-sub">Суббота и воскресенье</span></button>
+                        <button class="more-tile" data-open="exp"><span class="more-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/ex_map.svg" alt="" draggable="false"></span><span class="more-name">Экспедиции</span><span class="more-sub">Походы питомцев</span><span class="exp-entry-dot more-dot hidden"></span></button>
+                        <button class="more-tile" data-open="album"><span class="more-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/x_album.svg" alt="" draggable="false"></span><span class="more-name">Альбом</span><span class="more-sub">Наборы и вечные бонусы</span></button>
+                        <button class="more-tile" data-go="achievements-tab"><span class="more-ic"><img loading="lazy" decoding="async" class="ui-ic" src="assets/icons/tab_achievements.svg" alt="" draggable="false"></span><span class="more-name">Достижения</span><span class="more-sub">Слава Империи</span></button>
+                    </div>
+                    <div class="more-empty hidden" id="more-empty">Здесь появятся новые разделы, когда империя подрастёт.</div>
+                </div>
+
+                <div id="tab-achievements-tab" class="tab-pane">
+                    <div class="glory-banner" id="glory-banner"></div>
+                    <div class="achievements-list" id="achievements-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно: Оффлайн-доход (AFK) -->
+        <div id="modal-offline" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-badge">💤 ОФФЛАЙН-ДОХОД</div>
+                <div class="modal-icon">👑</div>
+                <h2>С возвращением, Магнат!</h2>
+                <p class="modal-subtext">Ваша империя продолжала усердно работать в ваше отсутствие:</p>
+                
+                <div class="offline-time-box">
+                    ⏱️ Время отсутствия: <b id="offline-time">0 мин</b>
+                </div>
+
+                <div class="offline-gain-box">
+                    <span class="offline-coin">🪙</span>
+                    <span id="offline-earned" class="offline-amount">+0</span>
+                </div>
+
+                <!-- Письмо «Пока вас не было» -->
+                <div id="offline-letter" class="offline-letter hidden"></div>
+
+                <div class="modal-buttons">
+                    <button id="btn-claim-offline-x3" class="btn-modal btn-boost">
+                        🎬 Забрать x3 (<span id="offline-x3-amount">+0</span>)
+                    </button>
+                    <button id="btn-claim-offline" class="btn-modal btn-secondary">
+                        Забрать (<span id="offline-base-amount">+0</span>)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно: Колесо Фортуны -->
+        <div id="modal-wheel" class="modal-overlay hidden">
+            <div class="modal-card wheel-card">
+                <button id="btn-close-wheel" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge">🎡 РУЛЕТКА УДАЧИ</div>
+                <h2>Колесо Фортуны</h2>
+                <p class="modal-subtext">Крути колесо и выигрывай горы монет, кристаллы или режим x5!</p>
+
+                <!-- Сцена колеса со стрелкой -->
+                <div class="wheel-stage">
+                    <div class="wheel-pointer">▼</div>
+                    <div class="wheel-outer-ring">
+                        <canvas id="wheel-canvas" width="560" height="560"></canvas>
+                    </div>
+                    <div class="wheel-center-pin"><img loading="lazy" decoding="async" class="ui-x wheel-crown" src="assets/icons/x_crown.svg" alt="" draggable="false"></div>
+                </div>
+
+                <div id="wheel-result" class="wheel-result-text"></div>
+
+                <div class="wheel-actions">
+                    <button id="btn-spin-wheel" class="btn-modal btn-primary">
+                        Крутить (Бесплатно)
+                    </button>
+                    <button id="btn-spin-ad" class="btn-modal btn-boost hidden">
+                        🎬 Крутить за рекламу
+                    </button>
+                    <div id="wheel-timer-text" class="wheel-cooldown-text"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно: Лидерборд (Рейтинг) -->
+        <div id="modal-leaderboard" class="modal-overlay hidden">
+            <div class="modal-card lb-modal-card">
+                <button id="btn-close-leaderboard" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge">🏆 ЗАЛ СЛАВЫ</div>
+                <h2>Рейтинг Магнатов</h2>
+                <p class="modal-subtext">Топ богатейших правителей Тап-Империи</p>
+
+                <!-- Вкладки категорий рейтинга -->
+                <div class="lb-tabs">
+                    <button class="lb-tab active" data-type="weekly">📅 Неделя</button>
+                    <button class="lb-tab" data-type="coins">🪙 Всё время</button>
+                    <button class="lb-tab" data-type="gems"><img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_gem.svg" alt="" draggable="false"> Престиж</button>
+                </div>
+                <div class="lb-week-note hidden" id="lb-week-note"></div>
+
+                <!-- Карточка игрока -->
+                <div class="lb-my-card">
+                    <div class="lb-my-rank" id="lb-my-rank">#--</div>
+                    <div class="lb-avatar" id="lb-my-avatar">👑</div>
+                    <div class="lb-player-info">
+                        <div class="lb-name" id="lb-my-name">Вы (Император)</div>
+                        <div class="lb-status" id="lb-my-status">Ваша империя</div>
+                    </div>
+                    <div class="lb-score-val" id="lb-my-score">0</div>
+                </div>
+
+                <!-- Список лидеров -->
+                <div class="lb-list" id="lb-list">
+                    <!-- Заполняется динамически -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно: Мини-игры событий -->
+        <div id="modal-minigame" class="modal-overlay hidden">
+            <div class="modal-card minigame-card">
+                <button id="btn-close-minigame" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge" id="mg-badge">⚡ МИНИ-ИГРА</div>
+                <h2 id="mg-title">Событие</h2>
+                
+                <div class="mg-stats-bar">
+                    <div class="mg-stat-pill">⏱️ <span id="mg-timer">12</span>с</div>
+                    <div class="mg-stat-pill">🪙 <span id="mg-score">0</span></div>
+                </div>
+
+                <div class="mg-timebar" id="mg-timebar"><i></i></div>
+                <!-- Игровая интерактивная арена -->
+                <div class="mg-arena" id="mg-arena"></div>
+
+                <div id="mg-instruction" class="mg-instruction">Тапайте как можно быстрее!</div>
+            </div>
+        </div>
+
+        <!-- Модальное окно: Статистика Империи -->
+        <div id="modal-stats" class="modal-overlay hidden">
+            <div class="modal-card stats-modal-card">
+                <button id="btn-close-stats" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_chart.svg" alt="" draggable="false"> Статистика</div>
+                <h2>Статистика Империи</h2>
+                <button id="btn-leaderboard" class="btn-open-lb" title="Рейтинг игроков"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_trophy.svg" alt="" draggable="false"> Рейтинг игроков</button>
+                <p class="modal-subtext">Все достижения и экономические показатели вашего правления</p>
+                <div class="stats-card">
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/cur_coin.svg" alt="" draggable="false"> Заработано всего:</span>
+                        <span class="stat-val highlight" id="stat-total-coins">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_tap.svg" alt="" draggable="false"> Сделано кликов:</span>
+                        <span class="stat-val" id="stat-total-clicks">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_crit.svg" alt="" draggable="false"> Критических ударов:</span>
+                        <span class="stat-val" id="stat-total-crits">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_comet.svg" alt="" draggable="false"> Поймано комет:</span>
+                        <span class="stat-val" id="stat-total-gifts">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_rebirth.svg" alt="" draggable="false"> Перерождений:</span>
+                        <span class="stat-val highlight" id="stat-total-prestiges">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_palette.svg" alt="" draggable="false"> Открыто обликов:</span>
+                        <span class="stat-val highlight" id="stat-unlocked-skins">1 / 15</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">⬆️ Уровней улучшений:</span>
+                        <span class="stat-val" id="stat-total-upgrades">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_time.svg" alt="" draggable="false"> Времени в игре:</span>
+                        <span class="stat-val" id="stat-time-played">0 мин</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_crown.svg" alt="" draggable="false"> Сила тапа:</span>
+                        <span class="stat-val highlight" id="stat-current-click">+1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_bolt.svg" alt="" draggable="false"> Пассивный доход:</span>
+                        <span class="stat-val highlight" id="stat-current-passive">+0 / с</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_trophy.svg" alt="" draggable="false"> Слава Империи:</span>
+                        <span class="stat-val highlight" id="stat-glory">+0%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_rocket.svg" alt="" draggable="false"> Общий множитель:</span>
+                        <span class="stat-val highlight" id="stat-total-multiplier">x1.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно: Таинственный Торговец -->
+        <div id="modal-merchant" class="modal-overlay hidden">
+            <div class="modal-card merchant-card">
+                <button id="btn-close-merchant" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_comet.svg" alt="">СЛУЧАЙНОЕ СОБЫТИЕ</div>
+                <div class="merchant-avatar"><img loading="lazy" decoding="async" src="assets/icons/e_merchant.svg" alt=""></div>
+                <h2>Таинственный Торговец</h2>
+                <p class="modal-subtext" id="merchant-dialogue">«Приветствую тебя, великий правитель! Я прибыл из дальних галактик и привёз редкие товары. Что выберешь?»</p>
+                
+                <div class="merchant-deals-grid">
+                    <div class="merchant-deal-card">
+                        <div class="deal-icon"><img loading="lazy" decoding="async" src="assets/icons/cur_gem.svg" alt=""></div>
+                        <div class="deal-title">Сундук Кристаллов</div>
+                        <div class="deal-desc">Моментально получить <b>+1 <img loading="lazy" decoding="async" class="ui-x" src="assets/icons/cur_gem.svg" alt=""></b></div>
+                        <button class="btn-merchant-deal" id="btn-deal-gems">Обменять 25% монет</button>
+                    </div>
+                    <div class="merchant-deal-card">
+                        <div class="deal-icon"><img loading="lazy" decoding="async" src="assets/icons/x_potion.svg" alt=""></div>
+                        <div class="deal-title">Зелье Квантового Тапа</div>
+                        <div class="deal-desc">Активировать <b>x5 Мега-Буст на 3 мин</b></div>
+                        <button class="btn-merchant-deal" id="btn-deal-boost">Купить за монеты</button>
+                    </div>
+                </div>
+                <button id="btn-dismiss-merchant" class="btn-modal btn-secondary">Отказаться от сделки</button>
+            </div>
+        </div>
+
+        <!-- ПОЛНОЭКРАННЫЙ ЭКРАН ВОЗНЕСЕНИЯ (ASTRAL ASCENSION SCREEN) -->
+        <div id="ascension-screen" class="ascension-screen hidden">
+            <div class="ascension-space-bg">
+                <canvas id="ascension-starfield-canvas"></canvas>
+            </div>
+            
+            <div class="ascension-header">
+                <div class="ascension-header-left">
+                    <div class="asc-stat-pill">
+                        <span class="asc-stat-label">✨ НЕБЕСНЫЙ УРОВЕНЬ</span>
+                        <b id="astral-prestige-level" class="asc-stat-value">ур. 0 (+0% CpS)</b>
+                    </div>
+                    <div class="asc-stat-pill">
+                        <span class="asc-stat-label"><img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_chip.svg" alt="" draggable="false"> НЕБЕСНЫЕ ЗВЁЗДЫ</span>
+                        <b id="astral-chips-count" class="asc-stat-value highlight-cyan">0 <img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_chip.svg" alt="" draggable="false"></b>
+                    </div>
+                </div>
+                <div class="ascension-header-right">
+                    <button id="btn-reincarnate" class="btn-reincarnate">
+                        ✨ ВЕРНУТЬСЯ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Интерактивная карта созвездий Небесного Древа -->
+            <div class="ascension-tree-viewport" id="ascension-viewport">
+                <div class="ascension-tree-canvas" id="ascension-tree-canvas">
+                    <svg class="ascension-lines-svg" id="ascension-lines-svg"></svg>
+                    <div class="ascension-nodes-container" id="ascension-nodes-container"></div>
+                </div>
+            </div>
+
+            <!-- Модальное окно выбора улучшения для Постоянного Слота -->
+            <div id="modal-perm-slot" class="modal-overlay hidden">
+                <div class="modal-card perm-slot-picker-card">
+                    <div class="modal-badge">💎 ПОСТОЯННЫЙ СЛОТ</div>
+                    <h3 id="perm-slot-picker-title">Выберите улучшение для переноса</h3>
+                    <p class="modal-subtext">Выбранное улучшение будет бесплатно выдаваться на старте каждого нового перерождения!</p>
+                    <div class="perm-slot-upgrades-list" id="perm-slot-upgrades-list"></div>
+                    <div class="modal-buttons" style="margin-top: 14px;">
+                        <button id="btn-close-perm-slot" class="btn-modal btn-secondary">Отмена</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модальное окно просмотра / покупки Небесного Созвездия -->
+            <div id="modal-ascension-node" class="modal-overlay hidden">
+                <div class="modal-card asc-node-modal-card">
+                    <button id="btn-close-asc-modal" class="modal-close-btn" title="Закрыть">✕</button>
+                    <div class="asc-card-header">
+                        <div id="asc-modal-orb" class="asc-node-orb asc-modal-orb">🌌</div>
+                        <div class="asc-modal-title-box">
+                            <div id="asc-modal-badge" class="asc-status-badge available">✨ ДОСТУПНО</div>
+                            <h3 id="asc-modal-title" class="asc-modal-title">Наследие Предков</h3>
+                        </div>
+                    </div>
+                    <div class="asc-modal-desc-box">
+                        <p id="asc-modal-desc" class="asc-modal-desc">
+                            Усиливает Вознесение: каждый уровень престижа даёт +15% ко всей добыче навсегда вместо +10%!
+                        </p>
+                    </div>
+                    <div class="asc-modal-meta-grid">
+                        <div class="asc-meta-item">
+                            <span class="asc-meta-label">Стоимость:</span>
+                            <span id="asc-modal-cost" class="asc-meta-val highlight-cyan">1 <img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_chip.svg" alt="" draggable="false"></span>
+                        </div>
+                        <div class="asc-meta-item">
+                            <span class="asc-meta-label">Ваши Звёзды:</span>
+                            <span id="asc-modal-balance" class="asc-meta-val highlight-cyan">0 <img loading="lazy" decoding="async" class="cur-ic inl" src="assets/icons/cur_chip.svg" alt="" draggable="false"></span>
+                        </div>
+                    </div>
+                    <div id="asc-modal-reqs-box" class="asc-reqs-box hidden">
+                        <div class="asc-reqs-header">ТРЕБОВАНИЯ ДЛЯ ОТКРЫТИЯ:</div>
+                        <div id="asc-modal-reqs-list" class="asc-reqs-list"></div>
+                    </div>
+                    <div id="asc-modal-slot-box" class="asc-slot-box hidden">
+                        <div class="asc-slot-header">ЗАКРЕПЛЁННОЕ УЛУЧШЕНИЕ:</div>
+                        <div class="asc-slot-content">
+                            <span id="asc-modal-slot-val" class="asc-slot-name">[Пусто: выберите улучшение]</span>
+                            <button id="btn-asc-configure-slot" class="btn-buy" style="font-size:11px;padding:4px 10px;">Настроить</button>
+                        </div>
+                    </div>
+                    <div class="modal-buttons" style="margin-top: 18px;">
+                        <button id="btn-asc-buy-action" class="btn-modal btn-primary">Изучить созвездие</button>
+                        <button id="btn-asc-back" class="btn-modal btn-secondary">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно подробной информации об улучшении магазина -->
+        <div id="modal-upgrade-info" class="modal-overlay hidden">
+            <div class="modal-card upgrade-info-card">
+                <button id="btn-close-upgrade-info" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="upgrade-info-header">
+                    <div id="up-info-icon" class="upgrade-info-icon">👆</div>
+                    <div class="upgrade-info-title-box">
+                        <div id="up-info-type" class="modal-badge">УЛУЧШЕНИЕ КЛИКА</div>
+                        <h3 id="up-info-name" class="upgrade-info-title">Медный палец</h3>
+                    </div>
+                </div>
+                <div class="upgrade-info-body">
+                    <div class="upgrade-info-desc-box">
+                        <p id="up-info-desc" class="upgrade-info-desc">Базовое усиление силы тапа</p>
+                    </div>
+                    <div class="upgrade-stats-grid">
+                        <div class="up-stat-cell">
+                            <span class="stat-label">Текущий уровень:</span>
+                            <span id="up-info-level" class="stat-val">ур. 0</span>
+                        </div>
+                        <div class="up-stat-cell">
+                            <span class="stat-label">Вклад в доход:</span>
+                            <span id="up-info-power" class="stat-val highlight">+0 / тап</span>
+                        </div>
+                        <div class="up-stat-cell">
+                            <span class="stat-label">Множитель вех:</span>
+                            <span id="up-info-milestone" class="stat-val highlight">x1</span>
+                        </div>
+                        <div class="up-stat-cell">
+                            <span class="stat-label">След. удвоение:</span>
+                            <span id="up-info-next-milestone" class="stat-val">на 10 ур.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-buttons" style="margin-top: 16px;">
+                    <button id="btn-up-info-buy" class="btn-modal btn-primary">Купить ур. (🪙 0)</button>
+                    <button id="btn-up-info-close" class="btn-modal btn-secondary">Закрыть</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно: Настройки игры -->
+        <div id="modal-settings" class="modal-overlay hidden">
+            <div class="modal-card settings-modal-card">
+                <button id="btn-close-settings" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_gear.svg" alt="" draggable="false"> ОПЦИИ И ПАРАМЕТРЫ</div>
+                <h3 class="settings-title">Настройки игры</h3>
+
+                <div class="settings-sections">
+                    <!-- Звуки и Музыка -->
+                    <div class="settings-group">
+                        <div class="settings-group-title"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_speaker.svg" alt="" draggable="false"> ЗВУК И МУЗЫКА</div>
+                        <div class="settings-row">
+                            <div class="settings-label-box">
+                                <span class="settings-label">Эффекты звука (SFX)</span>
+                                <span id="sfx-vol-label" class="settings-sublabel">100%</span>
+                            </div>
+                            <div class="settings-control-box">
+                                <input type="range" id="slider-sfx-volume" min="0" max="100" value="100" class="settings-slider">
+                                <button id="btn-toggle-sfx" class="btn-setting-toggle active" title="Вкл/Выкл">🔊</button>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-label-box">
+                                <span class="settings-label">Музыка (BGM)</span>
+                                <span id="bgm-vol-label" class="settings-sublabel">70%</span>
+                            </div>
+                            <div class="settings-control-box">
+                                <input type="range" id="slider-bgm-volume" min="0" max="100" value="70" class="settings-slider">
+                                <button id="btn-toggle-bgm" class="btn-setting-toggle" title="Вкл/Выкл">🎵</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Интерфейс и Язык -->
+                    <div class="settings-group">
+                        <div class="settings-group-title"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_monitor.svg" alt="" draggable="false"> ИНТЕРФЕЙС</div>
+                        <div class="settings-row">
+                            <div class="settings-label-box">
+                                <span class="settings-label">Что нового</span>
+                                <span class="settings-sublabel">Список изменений в последнем обновлении</span>
+                            </div>
+                            <button id="btn-whatsnew" class="btn-setting-toggle" title="Что нового">📰</button>
+                        </div>
+
+                        <div class="settings-row">
+                            <span class="settings-label">Язык / Language</span>
+                            <div class="settings-segmented">
+                                <button class="btn-lang" data-lang="ru">🇷🇺 Русский</button>
+                                <button class="btn-lang" data-lang="en">🇬🇧 English</button>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-label-box">
+                                <span class="settings-label">Всплывающие цифры тапа</span>
+                                <span class="settings-sublabel">+1, критические удары</span>
+                            </div>
+                            <label class="setting-switch">
+                                <input type="checkbox" id="toggle-dmg-numbers" checked>
+                                <span class="setting-slider-pill"></span>
+                            </label>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-label-box">
+                                <span class="settings-label">Частицы и конфетти</span>
+                                <span class="settings-sublabel">Искры при тапах и победах</span>
+                            </div>
+                            <label class="setting-switch">
+                                <input type="checkbox" id="toggle-particles" checked>
+                                <span class="setting-slider-pill"></span>
+                            </label>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-label-box">
+                                <span class="settings-label">Вибрация</span>
+                                <span class="settings-sublabel">Отклик на тапы, криты и награды</span>
+                            </div>
+                            <label class="setting-switch">
+                                <input type="checkbox" id="toggle-vibration" checked>
+                                <span class="setting-slider-pill"></span>
+                            </label>
+                        </div>
+                    </div>
+
+
+                    
+                    <div class="settings-group hidden" id="settings-shortcut-group">
+                        <div class="settings-group-title"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_pin.svg" alt="" draggable="false"> ЯРЛЫК</div>
+                        <div class="settings-row" id="settings-shortcut-row">
+                            <div class="settings-label-box">
+                                <span class="settings-label">Ярлык игры</span>
+                                <span class="settings-sublabel">На рабочий стол или главный экран</span>
+                            </div>
+                            <button id="btn-shortcut" class="btn-setting-action save"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_pin.svg" alt="" draggable="false"> Добавить</button>
+                        </div>
+                    </div>
+
+                    <!-- Управление данными -->
+                    <div class="settings-group">
+                        <div class="settings-group-title"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_save.svg" alt="" draggable="false"> УПРАВЛЕНИЕ ДАННЫМИ</div>
+                        <div class="settings-buttons-grid">
+                            <button id="btn-manual-save" class="btn-setting-action save">
+                                <img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_save.svg" alt="" draggable="false"> Сохранить игру</button>
+                            <button id="btn-hard-reset" class="btn-setting-action danger">
+                                <img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_trash.svg" alt="" draggable="false"> Сбросить прогресс</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-buttons" style="margin-top: 18px;">
+                    <button id="btn-settings-done" class="btn-modal btn-primary">Готово</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно подтверждения сброса -->
+        <div id="modal-confirm-reset" class="modal-overlay hidden">
+            <div class="modal-card confirm-reset-card">
+                <div class="modal-badge danger">⚠️ ВНИМАНИЕ!</div>
+                <h3>Сбросить весь прогресс?</h3>
+                <p class="modal-subtext">Вы действительно хотите стереть все накопленные монеты, кристаллы, уровни престижа и улучшения? Это действие необратимо!</p>
+                <div class="modal-buttons" style="margin-top: 16px;">
+                    <button id="btn-confirm-reset-yes" class="btn-modal btn-danger">Да, стереть всё</button>
+                    <button id="btn-confirm-reset-cancel" class="btn-modal btn-secondary">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно: Справка по валютам (Чипы и Кристаллы) -->
+        <div id="modal-currency-info" class="modal-overlay hidden">
+            <div class="modal-card currency-info-card">
+                <div class="modal-badge">ℹ️ ГИД ПО ВАЛЮТАМ</div>
+                <h3 id="currency-info-title" class="currency-info-title">Валюта</h3>
+                <div id="currency-info-body" class="currency-explainer-grid"></div>
+                <div class="modal-buttons" style="margin-top: 14px; width: 100%;">
+                    <button id="btn-currency-info-close" class="btn-modal btn-primary">Понятно!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Альбом коллекций -->
+        <div id="modal-album" class="modal-overlay hidden">
+            <div class="modal-card album-modal-card">
+                <button id="btn-close-album" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_album.svg" alt="">АЛЬБОМ КОЛЛЕКЦИЙ</div>
+                <div id="album-body" class="album-body"></div>
+            </div>
+        </div>
+
+        <!-- Окно раздела из «Ещё» (Скины, Артефакты, Вознесение, Достижения): сам раздел переносится сюда -->
+        <div id="modal-section" class="modal-overlay hidden">
+            <div class="modal-card section-modal-card">
+                <button id="btn-close-section" class="modal-close-btn" title="Закрыть">✕</button>
+                <div id="section-hero" class="section-hero"></div>
+                <div class="modal-badge" id="section-badge"></div>
+                <div id="section-body" class="section-body"></div>
+            </div>
+        </div>
+
+        <div id="modal-exp" class="modal-overlay hidden">
+            <div class="modal-card exp-modal-card">
+                <button id="btn-close-exp" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/ex_map.svg" alt="">ЭКСПЕДИЦИИ</div>
+                <div id="exp-body" class="exp-body"></div>
+            </div>
+        </div>
+
+        <div id="modal-pass" class="modal-overlay hidden">
+            <div class="modal-card pass-modal-card">
+                <button id="btn-close-pass" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_pass.svg" alt="">ИМПЕРСКИЙ ПРОПУСК</div>
+                <div id="pass-body" class="pass-body"></div>
+            </div>
+        </div>
+
+        <!-- Подсказка к механике (один раз) -->
+        <div id="modal-tip" class="modal-overlay hidden">
+            <div class="modal-card tip-modal-card">
+                <div class="modal-badge"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/x_bulb.svg" alt="">КАК ЭТО РАБОТАЕТ</div>
+                <h3 id="tip-title" class="tip-title">Подсказка</h3>
+                <div id="tip-body"></div>
+                <div class="modal-buttons" style="margin-top: 12px;">
+                    <button id="btn-tip-ok" class="btn-modal btn-primary">Понятно!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Магазин -->
+        <div id="modal-shop" class="modal-overlay hidden">
+            <div class="modal-card shop-modal-card">
+                <button id="btn-close-shop" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="shop-hero">
+                    <div class="shop-hero-crown">👑</div>
+                    <div class="shop-hero-title">Лавка Императора</div>
+                    <div class="shop-hero-sub">Поддержите империю и ускорьте её рост</div>
+                </div>
+                <div id="shop-body"></div>
+            </div>
+        </div>
+
+        <!-- Окно награды за вход -->
+        <div id="modal-login" class="modal-overlay hidden">
+            <div class="modal-card login-modal-card">
+                <button id="btn-close-login" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/ui_daily.svg" alt="">НАГРАДА ЗА ВХОД</div>
+                <h3 class="login-title">Заходите каждый день!</h3>
+                <div id="login-modal-body"></div>
+                <div class="modal-buttons" style="margin-top: 12px;">
+                    <button id="btn-login-claim" class="btn-modal btn-primary">Забрать</button>
+                    <button id="btn-login-claim-ad" class="btn-modal btn-ad-x2"><img loading="lazy" decoding="async" class="ui-x" src="assets/icons/lg_ad.svg" alt="">x2 за рекламу</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Окно сезона -->
+        <div id="modal-season" class="modal-overlay hidden">
+            <div class="modal-card season-modal-card">
+                <button id="btn-close-season" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge">🗓️ СЕЗОНЫ</div>
+                <div id="season-modal-body"></div>
+                <div class="modal-buttons" style="margin-top: 14px;">
+                    <button id="btn-season-ok" class="btn-modal btn-primary">Понятно!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Окно подробностей скина -->
+        <div id="modal-skin-info" class="modal-overlay hidden">
+            <div class="modal-card skin-info-card">
+                <button id="btn-close-skin-info" class="modal-close-btn" title="Закрыть">✕</button>
+                <div class="modal-badge">🎨 ОБЛИК МОНЕТЫ</div>
+                <div id="skin-info-preview" class="skin-info-preview skin-coin-preview mini-coin-preview"></div>
+                <h3 id="skin-info-name" class="skin-info-name">Скин</h3>
+                <p id="skin-info-desc" class="modal-subtext"></p>
+                <div class="skin-info-meta">
+                    <div class="skin-info-cell">
+                        <span class="skin-info-label">Бонус</span>
+                        <span id="skin-info-perk" class="skin-info-value perk"></span>
+                    </div>
+                    <div class="skin-info-cell">
+                        <span class="skin-info-label">Статус</span>
+                        <span id="skin-info-status" class="skin-info-value"></span>
+                    </div>
+                </div>
+                <div class="modal-buttons" style="margin-top: 16px;">
+                    <button id="btn-skin-info-action" class="btn-modal btn-primary">Надеть</button>
+                    <button id="btn-skin-info-back" class="btn-modal btn-secondary">Закрыть</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Глобальный слой для вылетающих цифр и частиц (поверх всего экрана) -->
+        <div id="tap-fx-layer"></div>
+
+        <!-- Оповещения / Тосты -->
+        <div id="toast-box"></div>
+    </div>
+
+    <script src="i18n.js?v=1792673328"></script>
+    <script src="game.js?v=1792673328"></script>
+</body>
+</html>

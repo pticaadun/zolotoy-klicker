@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><defs>
+<linearGradient id="gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e0a21a"/><stop offset="1" stop-color="#7c3f06"/></linearGradient>
+<radialGradient id="cos" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fdf4ff"/><stop offset=".2" stop-color="#e879f9"/><stop offset=".55" stop-color="#7c3aed"/><stop offset="1" stop-color="#1e1048"/></radialGradient>
+<filter id="sh" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".55"/></filter>
+</defs><g filter="url(#sh)"><path d="M40 96 L88 96 L82 108 L46 108 Z" fill="url(#gd)" stroke="#4a2503" stroke-width="3" stroke-linejoin="round" /><circle cx="64" cy="62" r="32" fill="url(#cos)" stroke="#4a2503" stroke-width="3.5" /><path d="M56.0,44.0 L58.8,51.2 L66.0,54.0 L58.8,56.8 L56.0,64.0 L53.2,56.8 L46.0,54.0 L53.2,51.2Z" fill="#fff" stroke="#4a2503" stroke-width="0" stroke-linejoin="round" opacity=".9"/><ellipse cx="52" cy="46" rx="8" ry="5" fill="#fff" opacity=".5" transform="rotate(-35 52 46)"/></g></svg>

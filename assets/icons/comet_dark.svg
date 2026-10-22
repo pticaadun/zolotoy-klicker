@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><defs>
+<radialGradient id="rub" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ffe4e6"/><stop offset=".25" stop-color="#fb7185"/><stop offset=".7" stop-color="#be123c"/><stop offset="1" stop-color="#4c0519"/></radialGradient>
+<filter id="sh" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".55"/></filter>
+</defs><defs>
+<radialGradient id="dark" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#a78bfa"/><stop offset=".35" stop-color="#4c1d95"/><stop offset=".8" stop-color="#1e0b3a"/><stop offset="1" stop-color="#0b0418"/></radialGradient>
+<radialGradient id="glowD" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f43f5e" stop-opacity=".75"/><stop offset=".6" stop-color="#7c3aed" stop-opacity=".3"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></radialGradient>
+</defs><g filter="url(#sh)"><circle cx="64" cy="64" r="60" fill="url(#glowD)"/><circle cx="64" cy="64" r="42" fill="url(#dark)" stroke="#4a2503" stroke-width="3.5" /><path d="M40 44 L54 56 L48 66 M88 42 L76 54 L82 64 M46 92 L58 78 M84 90 L72 78" fill="none" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" opacity=".9"/><circle cx="64" cy="64" r="13" fill="url(#rub)" stroke="#4a2503" stroke-width="2.5"/><ellipse cx="59.32" cy="58.54" rx="4.42" ry="2.6" fill="#fff" opacity=".75" transform="rotate(-35 59.32 58.54)"/><circle cx="64" cy="64" r="5" fill="#1a0505"/></g></svg>
