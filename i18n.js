@@ -7,6 +7,33 @@
 (function () {
     'use strict';
     const EN_EXACT = {
+    "Золотой Кликер 1.0": "Golden Clicker 1.0",
+    "✨ ЧТО ЕСТЬ В ИГРЕ": "✨ WHAT'S IN THE GAME",
+    "👆 Тапай по монете: 30+ улучшений клика, критические удары, комбо и «Огонь»": "👆 Tap the coin: 30+ tap upgrades, critical hits, combo and «Fire»",
+    "🏭 35+ предприятий — от хомяка до врат варп-прыжка, каждое строит здание в городе": "🏭 35+ businesses — from a hamster to a warp gate, each builds a building in the city",
+    "🏙️ Город из 4 районов: Старый город, Деловой центр, Техно-квартал и Космопорт — у каждого мэр и задание дня": "🏙️ A city of 4 districts: Old Town, Business District, Tech Quarter and Spaceport — each with a mayor and a daily task",
+    "🐙 6 боссов со своей механикой и босс недели с двойной наградой": "🐙 6 bosses with their own mechanics and a boss of the week with double rewards",
+    "🎮 8 мини-игр: Монетопад, Гонка дронов, Взлом сервера, Кузница, Звёздная карта, Сокровищница памяти, Напёрстки и Взлом сейфа": "🎮 8 mini-games: Coinfall, Drone Race, Server Hack, Forge, Star Map, Treasury of Memory, Lucky Cups and Safe Cracking",
+    "🐾 Питомцы растут, меняют облик и ходят в экспедиции за добычей": "🐾 Pets grow, change their look and go on expeditions for loot",
+    "🎨 25 анимированных обликов монеты: обычные, сезонные и эксклюзивы пропуска": "🎨 25 animated coin skins: regular, seasonal and pass exclusives",
+    "🌌 Вознесение и Небесное Древо, а после 25 вознесений — Трансцендентность": "🌌 Ascension and the Heavenly Tree, and after 25 ascensions — Transcendence",
+    "🎫 Имперский пропуск, сезонные события, тематические недели и ярмарка выходных": "🎫 Imperial Pass, seasonal events, theme weeks and the weekend fair",
+    "📜 Задания, достижения, указы императора, альбом коллекций и артефакты": "📜 Quests, achievements, imperial decrees, collection album and artifacts",
+    "🤖 Автокликер и авто-покупка, ⏩ ускорение времени и сундуки в магазине": "🤖 Auto-clicker and auto-buy, ⏩ time warp and chests in the shop",
+    "☁️ Прогресс сохраняется сам — играйте на телефоне и компьютере": "☁️ Progress saves automatically — play on phone and computer",
+    "Найден прогресс с другого устройства": "Progress found from another device",
+    "Загрузить прогресс": "Load progress",
+    "Оставить этот": "Keep this one",
+    "☁️ Загружаем прогресс…": "☁️ Loading progress…",
+    "☁️ Этот прогресс сохранён в облако": "☁️ This progress was saved to the cloud",
+    "☁️ Синхронизировать": "☁️ Sync",
+    "☁️ Проверяем облако…": "☁️ Checking the cloud…",
+    "☁️ Прогресс сохранён в облако": "☁️ Progress saved to the cloud",
+    "☁️ Не удалось сохранить — попробуйте позже": "☁️ Couldn't save — try again later",
+    "☁️ Облако не отвечает — попробуйте позже": "☁️ The cloud isn't responding — try again later",
+    "☁️ Облако недоступно вне VK": "☁️ The cloud is unavailable outside VK",
+    "☁️ Облако VK: нет связи — прогресс пока только на этом устройстве": "☁️ VK cloud: no connection — progress is only on this device for now",
+    "☁️ СОХРАНЕНИЕ": "☁️ SAVE",
     "Ускорение времени": "Time Warp",
     "Мгновенно получите монеты — столько, сколько империя заработает за это время. Бонус кристаллов к доходу не уменьшается.": "Instantly get coins — as much as your empire earns in that time. The crystal income bonus is not reduced.",
     "4 часа дохода": "4 hours of income",
@@ -2371,6 +2398,9 @@
 "Язык / Language": "Language / Язык", "с": "s", "ч": "h", "🏆 Рейтинг игроков работает внутри Яндекс Игр — там вы увидите настоящих игроков и своё место среди них.": "🏆 The player leaderboard works inside Yandex Games — there you'll see real players and your place among them.", "Загрузка рейтинга...": "Loading the leaderboard...", "Пока в рейтинге никого нет — станьте первым!": "No one is on the leaderboard yet — be the first!", "Не удалось загрузить рейтинг. Чтобы попасть в рейтинг, войдите в аккаунт Яндекса.": "Couldn't load the leaderboard. Sign in to your Yandex account to join it.", "Игрок": "Player", "Вы": "You", "(вы)": "(you)", "Лавка Императора": "Emperor's Shop", "Поддержите империю и ускорьте её рост": "Support the empire and speed up its growth", "Магазин": "Shop", "ХИТ": "HIT", "КУПЛЕНО": "OWNED", "x2 на 1 час": "x2 for 1 hour", "Можно купить один раз": "One-time purchase", "Реклама между этапами отключена. Видео за награды — по желанию.": "Ads between stages are off. Rewarded videos are optional.", "💎 Кристаллы": "💎 Crystals", "ПОПУЛЯРНОЕ": "POPULAR", "МАКСИМУМ": "MAXIMUM", "Покупки привязаны к аккаунту Яндекса и восстанавливаются сами на любом устройстве.": "Purchases are linked to your Yandex account and restore automatically on any device.", "✓ Куплено": "✓ Owned", "Купите 1, 50, 100, 150 и 200 уровней каждого здания. Здесь видны полученные и ближайшие цели.": "Buy 1, 50, 100, 150 and 200 levels of each building. Unlocked and next goals are shown here."
 };
     const EN_PATTERNS = [
+["☁️ Облако VK: сохранено в {0}",
+"☁️ VK cloud: saved at {0}"
+],
 ["⏩ Ускорение времени: +{0} 🪙",
 "⏩ Time Warp: +{0} 🪙"
 ],

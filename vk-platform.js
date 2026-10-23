@@ -182,7 +182,7 @@
         adv: adv,
         getPlayer: function () {
             // Storage работает только внутри VK: проверяем, что мост отвечает
-            return withTimeout(storageGet(['s_meta']), 6000).then(function () { return player; });
+            return withTimeout(storageGet(['s_meta']), 15000).then(function () { return player; });
         },
         // Голоса нельзя принимать в iOS-приложении VK (ограничение Apple) — там магазин скрыт
         getPayments: function () {

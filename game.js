@@ -4699,70 +4699,24 @@
     // «ЧТО НОВОГО» — показывается один раз после обновления игры
     // Добавляя обновление: поднимите GAME_VERSION и допишите запись в начало WHATS_NEW.
     // ========================================================
-    const GAME_VERSION = '1.7';
+    const GAME_VERSION = '1.0';
     const WHATS_NEW = [
         {
-            version: '1.9',
-            title: 'Обновление 1.9',
+            version: '1.0',
+            title: 'Золотой Кликер 1.0',
             items: [
-                '🎫 Имперский пропуск: сезоны по 28 дней, 30 ступеней наград за обычную игру, бесплатная и премиум-линейка',
-                '🧺 Новые события: «Монетопад», «Имперская Кузница» и «Звёздная Карта» — в сезон Монетопад сыплет сезонными находками',
-                '🏙️ Районы города: Старый город с черепицей, неоновый Техно-квартал и Деловой центр с флагами, деревья и скамейки на улице',
-                '🏛️ 8 новых предприятий (Ратуша, Монетный двор, Торговый порт…) и фонтан на центральной площади',
-                '👆 6 новых улучшений тапа, 12 новых синергий и 6 новых заклинаний в Альманахе',
-                '👑 Премиум-пропуск: эксклюзивный Грифон, облик «Императорский Дракон», короны при тапе и золотой монумент',
-                '🗺️ Экспедиции: питомцы уходят в походы и приносят добычу',
-                '💻 Новые боссы — Хакерская атака и Боевой Мех',
-                '🎪 Ярмарка выходных: по субботам и воскресеньям x2 к наградам мини-игр и свои задания',
-                '⚡ Игра загружается быстрее'
-            ]
-        },
-        {
-            version: '1.8',
-            title: 'Обновление 1.8',
-            items: [
-                '📅 Награда за вход на видном месте — пропуск дня не сбрасывает серию',
-                '🏙️ Монетки дохода над зданиями, снег и фейерверки в городе, новые космические постройки',
-                '📖 Альбом коллекций, ⭐ возвышение питомцев и новый питомец — Феникс',
-                '🎯 Испытание дня, новые артефакты, достижения, задания и указы'
-            ]
-        },
-        {
-            version: '1.7',
-            title: 'Обновление 1.7',
-            items: [
-                '📜 Указы императора: советник приносит истории, а вы решаете, как поступить. У некоторых есть продолжение!',
-                '😇 Нрав правителя: мягкие и строгие решения меняют ваш титул и открывают достижения',
-                '🛸 Дрон-Налётчик: босс, которого нужно сбить за 30 секунд',
-                '🌗 Путь влияет на указы: Тёмный путь — больше риска и выигрыша, Светлый — меньше потерь',
-                '🎨 Новый интерфейс: 5 вкладок внизу, меню «Ещё», раскладка для компьютера',
-                '📰 Вестник стал смешнее: новые новости для каждого предприятия и механики',
-                '🐢 Механики открываются постепенно — интереснее открывать новое (у старых игроков всё остаётся)'
-            ]
-        },
-        {
-            version: '1.6',
-            title: 'Обновление 1.6',
-            items: [
-                '🏛️ Совет: три слота для хранителей — у каждого сильная сторона и слабость',
-                '⚔️ Испытания: забеги с ограничением ради вечных наград (после первого вознесения)',
-                '🏺 Новые события: «Напёрстки Удачи» и «Сокровищница Памяти»',
-                '🎃 Сезонные события: тематический дождь с шансом на сезонные находки',
-                '🛣️ Улучшения за общее число уровней предприятий: «Инфраструктура» и «Пальцы Империи»',
-                '✉️ Письмо «Пока вас не было» и 🎯 цель на сессию под монетой',
-                '🔊 Звуки стали мягче и спокойнее'
-            ]
-        },
-        {
-            version: '1.5',
-            title: 'Обновление 1.5',
-            items: [
-                ...(IS_VK ? [] : ['📅 Недельный рейтинг: каждую неделю — новая гонка, у новичков есть шанс попасть в топ']),
-                '🌌 Итоги забега перед вознесением: время, лучший доход, награда и сравнение с прошлым',
-                '🔊 Новые звуки монет, комет и достижений, а на телефоне — вибрация (выключается в настройках)',
-                '🏛️ «Спонтанный Капитал» строит до 25 уровней сразу',
-                '💎 Постоянные слоты дают улучшение сразу 10 уровня',
-                '📈 Товары на бирже можно продать и после вознесения'
+                '👆 Тапай по монете: 30+ улучшений клика, критические удары, комбо и «Огонь»',
+                '🏭 35+ предприятий — от хомяка до врат варп-прыжка, каждое строит здание в городе',
+                '🏙️ Город из 4 районов: Старый город, Деловой центр, Техно-квартал и Космопорт — у каждого мэр и задание дня',
+                '🐙 6 боссов со своей механикой и босс недели с двойной наградой',
+                '🎮 8 мини-игр: Монетопад, Гонка дронов, Взлом сервера, Кузница, Звёздная карта, Сокровищница памяти, Напёрстки и Взлом сейфа',
+                '🐾 Питомцы растут, меняют облик и ходят в экспедиции за добычей',
+                '🎨 25 анимированных обликов монеты: обычные, сезонные и эксклюзивы пропуска',
+                '🌌 Вознесение и Небесное Древо, а после 25 вознесений — Трансцендентность',
+                '🎫 Имперский пропуск, сезонные события, тематические недели и ярмарка выходных',
+                '📜 Задания, достижения, указы императора, альбом коллекций и артефакты',
+                '🤖 Автокликер и авто-покупка, ⏩ ускорение времени и сундуки в магазине',
+                '☁️ Прогресс сохраняется сам — играйте на телефоне и компьютере'
             ]
         }
     ];
@@ -4781,7 +4735,7 @@
         const cur = WHATS_NEW[0];
         const older = WHATS_NEW.slice(1, 3);
         m.innerHTML = `<div class="modal-card whatsnew-card">
-            <div class="modal-badge">✨ ЧТО НОВОГО</div>
+            <div class="modal-badge">✨ ЧТО ЕСТЬ В ИГРЕ</div>
             <h3 class="whatsnew-title">${cur.title}</h3>
             <ul class="whatsnew-list">${cur.items.map(x => `<li>${x}</li>`).join('')}</ul>
             ${older.map(v => `<div class="whatsnew-old"><b>${v.title}</b><ul class="whatsnew-list">${v.items.map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('')}
@@ -6791,6 +6745,7 @@
                     loadCloudSave();
                 }).catch(() => {
                     loadLocalSave();
+                    if (IS_VK) setTimeout(cloudRetry, 15000);
                 });
             }).catch(err => {
                 console.warn('Yandex SDK недоступен, режим офлайн:', err);
@@ -6880,6 +6835,15 @@
                 saveGame(true);
                 showVkMenu();
             });
+            const sb = document.createElement('button');
+            sb.id = 'btn-cloud-sync'; sb.type = 'button'; sb.className = 'btn-setting-action save';
+            sb.textContent = '☁️ Синхронизировать';
+            grid.insertBefore(sb, mb.nextSibling);
+            sb.addEventListener('click', () => { initAudio(); cloudSyncNow(); });
+            const st = document.createElement('div');
+            st.id = 'vk-cloud-status'; st.className = 'vk-cloud-status';
+            grid.parentNode.insertBefore(st, grid.nextSibling);
+            if (dom.btnSettingsOpen) dom.btnSettingsOpen.addEventListener('click', updateCloudStatus);
         }
         showVkMenu();
     }
@@ -7003,7 +6967,7 @@
             lastCloudSaveAt = Date.now();
             const payload = pendingCloudData;
             pendingCloudData = null;
-            yandexPlayer.setData(payload, !!flush).catch(e => console.warn('Ошибка сохранения в облако:', e));
+            yandexPlayer.setData(payload, !!flush).then(() => { cloudState.ok = true; cloudState.last = Date.now(); }).catch(e => { cloudState.ok = false; console.warn('Ошибка сохранения в облако:', e); });
         };
         if (force === true || sinceLast >= CLOUD_SAVE_INTERVAL) {
             send(force === true);
@@ -7014,6 +6978,7 @@
 
     // forceCloud = true: сразу отправить в облако (закрытие/сворачивание, вознесение, ручное сохранение, сброс)
     function saveGame(forceCloud) {
+        if (window.__noSave) return; // идёт загрузка прогресса с другого устройства — ничего не перезаписываем
         // Пока вкладка свёрнута, «последний момент игры» = момент сворачивания (для честного офлайн-дохода)
         const saveTime = (document.hidden && hiddenAt) ? hiddenAt : Date.now();
         GameState.lastSaveTime = saveTime;
@@ -7250,13 +7215,8 @@
             return;
         }
         yandexPlayer.getData().then(cloud => {
-            if (loadingDone) {
-                // облако ответило слишком поздно: игра уже идёт с локального сейва
-                if (!isValidSave(cloud) || pickBetterSave(readLocalSaveData() || {}, cloud) !== cloud) { cloudSaveReady = true; saveGame(true); }
-                else showToast('☁️ В облаке найден прогресс больше — перезапустите игру, чтобы продолжить с него');
-                return;
-            }
-            cloudSaveReady = true;
+            if (loadingDone) { cloudLate(cloud); return; }
+            cloudSaveReady = true; cloudState.ok = true; cloudState.last = Date.now();
             const local = readLocalSaveData();
             const cloudOk = isValidSave(cloud);
             const localOk = isValidSave(local);
@@ -7279,7 +7239,64 @@
         }).catch(() => {
             // Облако недоступно: играем с локального сейва, облако не перезаписываем
             loadLocalSave();
+            if (IS_VK) setTimeout(cloudRetry, 15000);
         });
+    }
+
+    // --- Облачное сохранение: статус и догрузка, если облако ответило не сразу ---
+    const cloudState = { ok: false, last: 0, tries: 0 };
+    // облако ответило, когда игра уже идёт: больше прогресса здесь — отправляем в облако, больше в облаке — спрашиваем игрока
+    function cloudLate(cloud) {
+        cloudState.ok = true;
+        if (!isValidSave(cloud) || pickBetterSave(readLocalSaveData() || {}, cloud) !== cloud) { cloudSaveReady = true; saveGame(true); return; }
+        if (!IS_VK) { cloudSaveReady = true; showToast('☁️ В облаке найден прогресс больше — перезапустите игру, чтобы продолжить с него'); return; }
+        offerCloudLoad(cloud);
+    }
+    function cloudRetry() {
+        if (cloudSaveReady || !ysdkInstance || !ysdkInstance.getPlayer || cloudState.tries >= 6) return;
+        cloudState.tries++;
+        ysdkInstance.getPlayer().then(pl => { yandexPlayer = pl; return pl.getData(); })
+            .then(cloud => cloudLate(cloud))
+            .catch(() => setTimeout(cloudRetry, 20000));
+    }
+    function offerCloudLoad(cloud) {
+        let m = document.getElementById('modal-cloud');
+        if (!m) { m = document.createElement('div'); m.id = 'modal-cloud'; m.className = 'modal-overlay hidden'; document.getElementById('app').appendChild(m); }
+        const here = GameState.totalEarned || 0, there = cloud.totalEarned || 0;
+        m.innerHTML = `<div class="modal-card cloud-card"><div class="modal-badge">☁️ СОХРАНЕНИЕ</div>
+            <h3>Найден прогресс с другого устройства</h3>
+            <p class="modal-subtext">На другом устройстве заработано <b>${formatNumber(there)} 🪙</b>, вознесений: <b>${cloud.totalPrestiges || 0}</b>.<br>Здесь: <b>${formatNumber(here)} 🪙</b>, вознесений: <b>${GameState.totalPrestiges || 0}</b>.</p>
+            <div class="modal-buttons"><button class="btn-modal btn-primary" data-cl="load">Загрузить прогресс</button><button class="btn-modal btn-secondary" data-cl="keep">Оставить этот</button></div></div>`;
+        m.classList.remove('hidden');
+        m.onclick = (e) => {
+            const b = e.target.closest('[data-cl]'); if (!b) return;
+            if (b.dataset.cl === 'load') {
+                window.__noSave = true;
+                try { localStorage.setItem('tap_empire_save', JSON.stringify(cloud)); } catch (err) {}
+                showToast('☁️ Загружаем прогресс…');
+                setTimeout(() => location.reload(), 300);
+            } else {
+                m.classList.add('hidden');
+                cloudSaveReady = true; saveGame(true);
+                showToast('☁️ Этот прогресс сохранён в облако');
+            }
+        };
+    }
+    // кнопка «Синхронизировать» в настройках (VK)
+    function cloudSyncNow() {
+        if (!ysdkInstance || !ysdkInstance.getPlayer) { showToast('☁️ Облако недоступно вне VK'); return; }
+        showToast('☁️ Проверяем облако…');
+        ysdkInstance.getPlayer().then(pl => { yandexPlayer = pl; return pl.getData(); }).then(cloud => {
+            if (isValidSave(cloud) && pickBetterSave(readLocalSaveData() || {}, cloud) === cloud && (cloud.totalEarned || 0) > (GameState.totalEarned || 0) * 1.01) { offerCloudLoad(cloud); return; }
+            cloudSaveReady = true; saveGame(true);
+            setTimeout(() => { showToast(cloudState.ok ? '☁️ Прогресс сохранён в облако' : '☁️ Не удалось сохранить — попробуйте позже'); updateCloudStatus(); }, 1500);
+        }).catch(() => { cloudState.ok = false; showToast('☁️ Облако не отвечает — попробуйте позже'); updateCloudStatus(); });
+    }
+    function updateCloudStatus() {
+        const el = document.getElementById('vk-cloud-status'); if (!el) return;
+        const t = cloudState.last ? new Date(cloudState.last).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '';
+        el.textContent = cloudSaveReady && cloudState.ok ? `☁️ Облако VK: сохранено${t ? ' в ' + t : ''}` : '☁️ Облако VK: нет связи — прогресс пока только на этом устройстве';
+        el.classList.toggle('bad', !(cloudSaveReady && cloudState.ok));
     }
 
     function loadLocalSave() {

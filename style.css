@@ -9537,3 +9537,7 @@ html.plat-vk #btn-leaderboard { display: none !important; }
 .shop-tw-card .shop-gem-amount { font-size: 15px; white-space: nowrap; }
 .shop-tw-btn.cant { opacity: .5; filter: grayscale(.4); }
 .shop-tw-btn.armed { background: linear-gradient(180deg, #fb923c, #ea580c) !important; color: #fff !important; }
+/* VK: статус облачного сохранения в настройках */
+.vk-cloud-status { margin: 8px 2px 0; font-size: 12px; color: #86efac; text-align: center; }
+.vk-cloud-status.bad { color: #fca5a5; }
+.cloud-card h3 { margin: 6px 0 8px; }
