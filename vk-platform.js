@@ -65,10 +65,11 @@
     }
 
     // ---------- Сохранения: VK Storage (значение до 4096 байт → режем на части) ----------
-    // Пишем попеременно в слоты a/b, а «указатель» (s_meta) обновляем последним —
-    // так оборванная запись никогда не портит предыдущее сохранение.
-    var CHUNK = 3800;
-    var curSlot = null;
+    // Два независимых слота a/b, у каждого свой «паспорт» (s_ma / s_mb: id, число частей, длина, время).
+    // Каждая часть начинается с id сохранения — так видно, что все части от одной записи.
+    // Пишем в более старый слот, паспорт — последним. Даже если запись оборвалась или два устройства
+    // сохраняли одновременно, второй слот остаётся целым, и при чтении берётся самый свежий целый слот.
+    var CHUNK = 3700;
     function asciiJson(obj) {
         return JSON.stringify(obj).replace(/[\u007f-￿]/g, function (c) {
             return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
@@ -81,33 +82,62 @@
             return out;
         });
     }
+    function parseMeta(v, slot, legacy) {
+        if (!v) return null;
+        try { var m = JSON.parse(v); if (!m || !m.n) return null; m.slot = m.slot || slot; m.legacy = !!legacy; return m; } catch (e) { return null; }
+    }
+    function readSlot(m) {
+        var keys = [];
+        for (var i = 0; i < m.n; i++) keys.push('s_' + m.slot + '_' + i);
+        return storageGet(keys).then(function (parts) {
+            var str = '';
+            for (var i = 0; i < keys.length; i++) {
+                var v = parts[keys[i]] || '';
+                if (!m.legacy) {
+                    var bar = v.indexOf('|');
+                    if (bar < 0 || v.slice(0, bar) !== String(m.id)) throw new Error('часть ' + i + ' от другой записи');
+                    v = v.slice(bar + 1);
+                }
+                str += v;
+            }
+            if (str.length !== m.len) throw new Error('не совпала длина');
+            return JSON.parse(str);
+        });
+    }
+    function readMetas() {
+        return storageGet(['s_ma', 's_mb', 's_meta']).then(function (r) {
+            var list = [parseMeta(r.s_ma, 'a'), parseMeta(r.s_mb, 'b')].filter(Boolean);
+            var old = parseMeta(r.s_meta, null, true); // формат первой версии
+            if (old) list.push(old);
+            list.sort(function (x, y) { return (y.t || 0) - (x.t || 0); });
+            return list;
+        });
+    }
     function getData() {
-        return storageGet(['s_meta']).then(function (m) {
-            if (!m.s_meta) return {};
-            var meta = JSON.parse(m.s_meta);
-            curSlot = meta.slot;
-            var keys = [];
-            for (var i = 0; i < meta.n; i++) keys.push('s_' + meta.slot + '_' + i);
-            return storageGet(keys).then(function (parts) {
-                var str = keys.map(function (k) { return parts[k] || ''; }).join('');
-                if (str.length !== meta.len) throw new Error('сохранение повреждено');
-                return JSON.parse(str);
-            });
+        return readMetas().then(function (list) {
+            if (!list.length) return {};
+            var k = 0;
+            var tryNext = function () {
+                if (k >= list.length) { window.__vkLastErr = 'облачное сохранение повреждено — будет перезаписано'; return {}; }
+                return readSlot(list[k++]).catch(function (e) { window.__vkLastErr = 'слот: ' + (e && e.message); return tryNext(); });
+            };
+            return tryNext();
         });
     }
     var writing = Promise.resolve();
     function setData(obj) {
         var str = asciiJson(obj);
         writing = writing.catch(function () {}).then(function () {
-            var slot = curSlot === 'a' ? 'b' : 'a';
-            var n = Math.ceil(str.length / CHUNK);
-            var jobs = [];
-            for (var i = 0; i < n; i++) {
-                jobs.push(send('VKWebAppStorageSet', { key: 's_' + slot + '_' + i, value: str.slice(i * CHUNK, (i + 1) * CHUNK) }));
-            }
-            return Promise.all(jobs).then(function () {
-                return send('VKWebAppStorageSet', { key: 's_meta', value: JSON.stringify({ slot: slot, n: n, len: str.length, t: Date.now() }) });
-            }).then(function () { curSlot = slot; });
+            return storageGet(['s_ma', 's_mb']).then(function (r) {
+                var ma = parseMeta(r.s_ma, 'a'), mb = parseMeta(r.s_mb, 'b');
+                var slot = !ma ? 'a' : !mb ? 'b' : ((ma.t || 0) <= (mb.t || 0) ? 'a' : 'b');
+                var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                var n = Math.ceil(str.length / CHUNK), jobs = [];
+                for (var i = 0; i < n; i++) jobs.push(send('VKWebAppStorageSet', { key: 's_' + slot + '_' + i, value: id + '|' + str.slice(i * CHUNK, (i + 1) * CHUNK) }));
+                return Promise.all(jobs).then(function () {
+                    return send('VKWebAppStorageSet', { key: 's_m' + slot, value: JSON.stringify({ id: id, n: n, len: str.length, t: Date.now() }) });
+                });
+            });
         });
         return writing;
     }
@@ -192,7 +222,7 @@
         adv: adv,
         getPlayer: function () {
             // Storage работает только внутри VK: проверяем, что мост отвечает
-            return withTimeout(storageGet(['s_meta']), 15000).then(function () { return player; });
+            return withTimeout(storageGet(['s_ma']), 15000).then(function () { return player; });
         },
         // Голоса нельзя принимать в iOS-приложении VK (ограничение Apple) — там магазин скрыт
         getPayments: function () {

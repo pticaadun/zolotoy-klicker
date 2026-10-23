@@ -7290,7 +7290,7 @@
             if (isValidSave(cloud) && pickBetterSave(readLocalSaveData() || {}, cloud) === cloud && (cloud.totalEarned || 0) > (GameState.totalEarned || 0) * 1.01) { offerCloudLoad(cloud); return; }
             cloudSaveReady = true; saveGame(true);
             setTimeout(() => { showToast(cloudState.ok ? '☁️ Прогресс сохранён в облако' : '☁️ Не удалось сохранить — попробуйте позже'); updateCloudStatus(); }, 1500);
-        }).catch(() => { cloudState.ok = false; showToast('☁️ Облако не отвечает — попробуйте позже' + (window.__vkLastErr ? ` (${window.__vkLastErr})` : '')); updateCloudStatus(); });
+        }).catch((e) => { cloudState.ok = false; if (!window.__vkLastErr && e) window.__vkLastErr = String(e.message || e.error_type || JSON.stringify(e)).slice(0, 140); showToast('☁️ Облако не отвечает — попробуйте позже' + (window.__vkLastErr ? ` (${window.__vkLastErr})` : '')); updateCloudStatus(); });
     }
     function updateCloudStatus() {
         const el = document.getElementById('vk-cloud-status'); if (!el) return;
