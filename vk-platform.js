@@ -32,13 +32,23 @@
     var startedAt = Date.now();
     var lastInterstitialAt = 0;
 
+    // последняя ошибка моста — показывается в настройках, чтобы понять, почему не работает облако
+    window.__vkLastErr = '';
+    function errText(method, e) {
+        var d = e && (e.error_data || e);
+        var t = '';
+        try { t = d && (d.error_reason || d.error_msg || d.error_description || d.message) || JSON.stringify(e); } catch (x) { t = String(e); }
+        return method.replace('VKWebApp', '') + ': ' + String(t).slice(0, 140);
+    }
     function send(method, params) {
-        if (!B) return Promise.reject(new Error('VK Bridge не загружен'));
-        try { return B.send(method, params || {}); } catch (e) { return Promise.reject(e); }
+        if (!B) { window.__vkLastErr = 'VK Bridge не загружен'; return Promise.reject(new Error('VK Bridge не загружен')); }
+        var p;
+        try { p = B.send(method, params || {}); } catch (e) { window.__vkLastErr = errText(method, e); return Promise.reject(e); }
+        return p.catch(function (e) { if (method.indexOf('Ads') < 0) window.__vkLastErr = errText(method, e); throw e; });
     }
     function withTimeout(p, ms) {
         return new Promise(function (res, rej) {
-            var t = setTimeout(function () { rej(new Error('timeout')); }, ms);
+            var t = setTimeout(function () { window.__vkLastErr = 'нет ответа от VK за ' + Math.round(ms / 1000) + ' с'; rej(new Error('timeout')); }, ms);
             p.then(function (v) { clearTimeout(t); res(v); }, function (e) { clearTimeout(t); rej(e); });
         });
     }

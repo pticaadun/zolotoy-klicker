@@ -7290,12 +7290,12 @@
             if (isValidSave(cloud) && pickBetterSave(readLocalSaveData() || {}, cloud) === cloud && (cloud.totalEarned || 0) > (GameState.totalEarned || 0) * 1.01) { offerCloudLoad(cloud); return; }
             cloudSaveReady = true; saveGame(true);
             setTimeout(() => { showToast(cloudState.ok ? '☁️ Прогресс сохранён в облако' : '☁️ Не удалось сохранить — попробуйте позже'); updateCloudStatus(); }, 1500);
-        }).catch(() => { cloudState.ok = false; showToast('☁️ Облако не отвечает — попробуйте позже'); updateCloudStatus(); });
+        }).catch(() => { cloudState.ok = false; showToast('☁️ Облако не отвечает — попробуйте позже' + (window.__vkLastErr ? ` (${window.__vkLastErr})` : '')); updateCloudStatus(); });
     }
     function updateCloudStatus() {
         const el = document.getElementById('vk-cloud-status'); if (!el) return;
         const t = cloudState.last ? new Date(cloudState.last).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '';
-        el.textContent = cloudSaveReady && cloudState.ok ? `☁️ Облако VK: сохранено${t ? ' в ' + t : ''}` : '☁️ Облако VK: нет связи — прогресс пока только на этом устройстве';
+        el.textContent = cloudSaveReady && cloudState.ok ? `☁️ Облако VK: сохранено${t ? ' в ' + t : ''}` : '☁️ Облако VK: нет связи — прогресс пока только на этом устройстве' + (window.__vkLastErr ? ` · ${window.__vkLastErr}` : '');
         el.classList.toggle('bad', !(cloudSaveReady && cloudState.ok));
     }
 
