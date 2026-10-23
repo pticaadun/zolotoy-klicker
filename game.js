@@ -932,6 +932,22 @@
         perkText: (lvl) => `+${lvl * 5}% ко всему доходу и +${lvl * 15}% к наградам мини-игр`,
         phrases: ['Казна под охраной! 🦅', 'Ни одна монета не пропадёт! 👑', 'Империя в надёжных когтях! ✨']
     });
+    // Эксклюзив пропуска сезона «Звёздная ярмарка»
+    PETS_CONFIG.push({
+        id: 'starfox',
+        name: 'Звёздный Лис',
+        nickname: 'Комета',
+        icon: '🦊',
+        exclusive: true,
+        desc: 'Эксклюзив пропуска сезона «Звёздная ярмарка». Ловкий лис с хвостом-звездой: усиливает весь доход и дары золотых комет.',
+        costType: 'pass',
+        cost: 0,
+        maxLvl: 4,
+        getUpgradeCost: (lvl) => 30 + lvl * 20,
+        costCurrency: 'gems',
+        perkText: (lvl) => `+${lvl * 5}% ко всему доходу и +${lvl * 20}% к дарам комет`,
+        phrases: ['Хвост-звезда к удаче! 🌟', 'Чую комету — лови! ☄️', 'Ярмарка открыта! 🎠']
+    });
 
     // --- КОНФИГУРАЦИЯ ЗАДАНИЙ (ЕЖЕДНЕВНЫЕ, ЕЖЕНЕДЕЛЬНЫЕ, ОСНОВНЫЕ) ---
     // Доход в секунду для наград (без временных бустов): пассив + тап x3 в секунду
@@ -1676,7 +1692,8 @@
         'c_signet_ring', 'c_gold_scepter', 'c_imperial_rod', 'c_thunder_hammer', 'c_storm_gauntlet', 'c_ion_pulse',
         's_spell_fever', 's_spell_comets', 's_spell_city', 's_spell_rain', 's_spell_haste', 's_spell_crystal'].forEach(k => ART_ICONS.add(k));
     ['e_drone_race', 'e_server_hack', 'x_transcend', 'cur_aether', 'mg_racer', 'x_evo', 'b_launch_pad', 'b_asteroid_mine', 'b_starship_yard', 'b_space_elevator', 'b_warp_gate', 'e_octo', 'e_airship', 'e_ai', 'mg_octo', 'mg_octo_arm', 'mg_airship', 'mg_engine', 'mg_bomb', 'mg_ai', 'x_fair', 'e_kraken', 'e_golem', 'mg_kraken', 'mg_golem', 'mg_tentacle', 'p_griffin', 'pf_griffin', 'x_monument', 'x_pass_box', 'x_tap_crowns', 'ex_market', 'ex_mountain', 'ex_lostcity', 'ex_map', 'ex_chest'].forEach(k => ART_ICONS.add(k));
-    ['cat', 'dog', 'owl', 'dragon', 'drone', 'unicorn', 'phoenix', 'griffin'].forEach(k => [1, 2, 3].forEach(st => { ART_ICONS.add(`p_${k}_s${st}`); ART_ICONS.add(`pf_${k}_s${st}`); }));
+    ['cat', 'dog', 'owl', 'dragon', 'drone', 'unicorn', 'phoenix', 'griffin', 'starfox'].forEach(k => [1, 2, 3].forEach(st => { ART_ICONS.add(`p_${k}_s${st}`); ART_ICONS.add(`pf_${k}_s${st}`); }));
+    ['p_starfox', 'pf_starfox', 'x_carousel', 'x_tap_fireworks'].forEach(k => ART_ICONS.add(k));
     function petArt(id, pre) { const st = getPetStars(id); return `${pre || 'p'}_${id}${st ? '_s' + st : ''}`; }
     function artInl(key, fallback) { return key && ART_ICONS.has(key) ? `<img loading="lazy" decoding="async" class="art-ic inl" src="${artSrc(key)}" alt="" draggable="false">` : fallback; }
     function synIcons(syn) {
@@ -2173,6 +2190,7 @@
         mult *= 1 + ((GameState.artifacts && GameState.artifacts.golden_compass) || 0) * 0.10; // артефакт «Золотой Компас»
         if (GameState.selectedPet === 'phoenix' && getPetLevel('phoenix') > 0) mult *= 1 + getPetLevel('phoenix') * 0.04; // Золотой Феникс
         if (GameState.selectedPet === 'griffin' && getPetLevel('griffin') > 0) mult *= 1 + getPetLevel('griffin') * 0.05; // Имперский Грифон
+        if (GameState.selectedPet === 'starfox' && getPetLevel('starfox') > 0) mult *= 1 + getPetLevel('starfox') * 0.05; // Звёздный Лис
         mult *= getKittenMult(); // котята: от Славы Империи
         mult *= getChallengeRewardMult('all'); // награда за «Тяжёлые времена»
         if (isChallenge('hard_times')) mult *= 0.5; // испытание: доход вдвое меньше
@@ -2612,9 +2630,37 @@
 
     // Эксклюзив пропуска «Имперские короны»: из-под пальца вылетает золотая корона (не чаще ~7 раз в секунду)
     let lastCrownAt = 0;
+    // какой эффект тапа сейчас включён: короны (Золотой век), салют (Звёздная ярмарка) или выключен
+    function tapFxSel() {
+        const ex = GameState.ext; if (!ex) return 'off';
+        const own = tapFxOwned();
+        if (!own.length) return 'off';
+        if (ex.tapFxSel === 'off' || (ex.tapFxSel == null && ex.tapCrownsOn === false)) return 'off';
+        return own.includes(ex.tapFxSel) ? ex.tapFxSel : own[0];
+    }
+    function tapFxOwned() { const ex = GameState.ext || {}; const o = []; if (ex.tapCrowns) o.push('crowns'); if (ex.tapFireworks) o.push('fireworks'); return o; }
+    const TAP_FX_NAMES = { crowns: 'Короны', fireworks: 'Салют', off: 'выкл' };
+    let lastFwAt = 0;
+    function spawnTapFireworks(x, y, now) {
+        if (now - lastFwAt < (document.body.classList.contains('low-fx') ? 300 : 160)) return;
+        lastFwAt = now;
+        const b = document.createElement('div');
+        b.className = 'tap-fw';
+        b.style.left = `${x + (Math.random() - 0.5) * 50}px`; b.style.top = `${y - 20 - Math.random() * 40}px`;
+        const cols = ['#f472b6', '#38bdf8', '#fde047', '#a78bfa', '#34d399'];
+        const col = cols[Math.floor(Math.random() * cols.length)], col2 = cols[Math.floor(Math.random() * cols.length)];
+        const n = document.body.classList.contains('low-fx') ? 8 : 12;
+        let h = '';
+        for (let i = 0; i < n; i++) h += `<i style="--a:${(360 / n) * i}deg;--c:${i % 2 ? col : col2}"></i>`;
+        b.innerHTML = h + '<b></b>';
+        document.body.appendChild(b);
+        setTimeout(() => b.remove(), 900);
+    }
     function spawnTapCrown(x, y, now) {
         const ex = GameState.ext;
-        if (!ex || !ex.tapCrowns || ex.tapCrownsOn === false) return;
+        const fx = tapFxSel();
+        if (fx === 'fireworks') { spawnTapFireworks(x, y, now); return; }
+        if (!ex || fx !== 'crowns') return;
         // платный эффект: в лёгком режиме не выключаем, только реже
         if (now - lastCrownAt < (document.body.classList.contains('low-fx') ? 260 : 140)) return;
         lastCrownAt = now;
@@ -3106,8 +3152,10 @@
         tryDropSeasonItem(SEASON_DROP_CHANCE);
         const roll = Math.random();
         const getLucky = hasHeavenlyUpgrade('get_lucky');
-        const frenzyDur = getLucky ? 90000 : 45000;
-        const clickFrenzyDur = getLucky ? 26000 : 13000;
+        // Звёздный Лис: +20% к дарам комет за уровень (длительность безумий и монеты «Счастливчика»)
+        const foxK = GameState.selectedPet === 'starfox' ? 1 + getPetLevel('starfox') * 0.2 : 1;
+        const frenzyDur = Math.round((getLucky ? 90000 : 45000) * foxK);
+        const clickFrenzyDur = Math.round((getLucky ? 26000 : 13000) * foxK);
 
         if (roll < 0.35) {
             // 35% шанс: Frenzy (Безумие x7 ко всей добыче)
@@ -3130,6 +3178,7 @@
                 reward = Math.floor(reward * 1.25);
             }
             if (hasHeavenlyUpgrade('golden_touch')) reward = Math.floor(reward * 1.5); // Золотое Касание
+            reward = Math.floor(reward * foxK);
             GameState.score += reward;
             GameState.totalEarned += reward;
             GameState.runCoinsEarned = (GameState.runCoinsEarned || 0) + reward;
@@ -4316,7 +4365,7 @@
     const SHOP_PRODUCTS = [
         { id: 'no_ads', kind: 'permanent', icon: '🚫', title: 'Без рекламы', desc: 'Отключает рекламу между этапами игры. Видео за награды остаются — по желанию.' },
         { id: 'starter_pack', kind: 'once', icon: '🎁', title: 'Стартовый набор', desc: '+50 💎, +5 🔮 и x2 к доходу на 1 час. Можно купить один раз.' },
-        { id: 'imperial_pass', kind: 'consumable', icon: '🎫', title: 'Имперский пропуск', desc: 'Премиум-линейка наград текущего сезона: эксклюзивный питомец Грифон, облик монеты «Императорский Дракон», короны при тапе, золотой монумент в городе, шкатулка каждый день и +10% к доходу до конца сезона.' },
+        { id: 'imperial_pass', kind: 'consumable', icon: '🎫', title: 'Имперский пропуск', desc: 'Премиум-линейка наград текущего сезона: эксклюзивный питомец, облик монеты, эффект тапа и украшение города, шкатулка каждый день и +10% к доходу до конца сезона.' },
         { id: 'gems_50', kind: 'consumable', icon: '💎', title: 'Мешочек кристаллов', desc: '+50 💎', gems: 50 },
         { id: 'gems_150', kind: 'consumable', icon: '💰', title: 'Сундук кристаллов', desc: '+150 💎', gems: 150 },
         { id: 'gems_500', kind: 'consumable', icon: '👑', title: 'Сокровищница', desc: '+500 💎', gems: 500 }
@@ -4476,7 +4525,7 @@
                 <div class="shop-row-icon">${artIcon('x_pass_gold', '🎫')}</div>
                 <div class="shop-row-main" data-open-pass="1">
                     <div class="shop-row-title">Имперский пропуск · сезон ${passSeasonId()}</div>
-                    <div class="shop-row-desc">${passPremiumActive() ? 'Премиум активен до конца сезона. Нажмите, чтобы открыть пропуск.' : `Эксклюзивные Грифон и облик «${passSeasonSkin().name}», короны при тапе, монумент в городе, шкатулка каждый день и +10% к доходу. Нажмите, чтобы посмотреть.`}</div>
+                    <div class="shop-row-desc">${passPremiumActive() ? 'Премиум активен до конца сезона. Нажмите, чтобы открыть пропуск.' : `Эксклюзивные ${passExtras().petShort} и облик «${passSeasonSkin().name}», ${passExtras().fxShort.toLowerCase()} при тапе, ${passExtras().monShort.toLowerCase()} в городе, шкатулка каждый день и +10% к доходу. Нажмите, чтобы посмотреть.`}</div>
                 </div>
                 ${btn('imperial_pass', passPremiumActive())}
             </div>
@@ -8688,6 +8737,28 @@
         return o;
     }
     // Площадь в самом центре города: фонтан с золотой монетой (появляется, когда город разросся до середины)
+    // Звёздная карусель (эксклюзив пропуска «Звёздная ярмарка») — на площади Делового центра
+    function cityCarousel() {
+        const cx = 197.5, G = 186;
+        let o = `<g class="city-carousel">`;
+        o += `<ellipse cx="${cx}" cy="${G - 1}" rx="17" ry="2.6" fill="#1e293b" stroke="#64748b" stroke-width="0.6"/>`;
+        o += `<rect x="${cx - 15}" y="${G - 5}" width="30" height="4" rx="1.5" fill="#94a3b8" stroke="#475569" stroke-width="0.5"/>`;
+        o += `<rect x="${cx - 1}" y="${G - 30}" width="2" height="25" fill="#fbbf24"/>`;
+        [-10, 10].forEach((dx, k) => {
+            const x = cx + dx, y = G - 15 + (k ? -2 : 1), d = dx < 0 ? 1 : -1;
+            o += `<path d="M${x} ${G - 27} L${x} ${G - 5}" stroke="#e2e8f0" stroke-width="0.7"/>`;
+            o += `<g class="crs-horse" style="animation-delay:${k * -0.8}s"><ellipse cx="${x}" cy="${y}" rx="3.6" ry="2.2" fill="#fff7ed" stroke="#7c2d12" stroke-width="0.5"/>`;
+            o += `<path d="M${x + 2 * d} ${y - 1} L${x + 3.5 * d} ${y - 4.5} L${x + 5.5 * d} ${y - 3.5} L${x + 3.5 * d} ${y}" fill="#fff7ed" stroke="#7c2d12" stroke-width="0.5"/>`;
+            o += `<path d="M${x - 2.5 * d} ${y + 1.5} L${x - 3 * d} ${y + 4} M${x + 2 * d} ${y + 1.5} L${x + 2.5 * d} ${y + 4}" stroke="#7c2d12" stroke-width="0.6"/></g>`;
+        });
+        o += `<path d="M${cx - 19} ${G - 27} L${cx} ${G - 38} L${cx + 19} ${G - 27} Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="0.6"/>`;
+        [-1, 0, 1].forEach(k => { o += `<path d="M${cx} ${G - 38} L${cx + k * 9 - 2.4} ${G - 27} L${cx + k * 9 + 2.4} ${G - 27} Z" fill="#fff"/>`; });
+        o += `<rect x="${cx - 20}" y="${G - 28}" width="40" height="3" rx="1" fill="#fbbf24" stroke="#b45309" stroke-width="0.4"/>`;
+        for (let i = 0; i < 7; i++) o += `<circle cx="${(cx - 17 + i * 5.66).toFixed(1)}" cy="${G - 26.5}" r="0.9" fill="#fde047" class="${i % 2 ? 'c-blink' : ''}"/>`;
+        o += `<path d="M${cx} ${G - 44} L${cx + 1.2} ${G - 41} L${cx + 4} ${G - 40.6} L${cx + 1.8} ${G - 38.8} L${cx + 2.4} ${G - 36} L${cx} ${G - 37.6} L${cx - 2.4} ${G - 36} L${cx - 1.8} ${G - 38.8} L${cx - 4} ${G - 40.6} L${cx - 1.2} ${G - 41} Z" fill="#fde047" stroke="#b45309" stroke-width="0.4"/>`;
+        o += `<ellipse cx="${cx}" cy="${G - 18}" rx="24" ry="22" fill="#fde68a" opacity=".08"/></g>`;
+        return o;
+    }
     function cityPlaza() {
         const cx = 197.5, G = 186;
         let o = `<ellipse cx="${cx}" cy="${G - 1}" rx="11" ry="2.4" fill="#1e293b" stroke="#64748b" stroke-width="0.6"/>`;
@@ -8939,7 +9010,7 @@
             }
         }
         const view = currentDistrict(), viewLocked = !districtUnlocked(view);
-        const sig = tiers.join('') + (night ? 'n' : 'd') + W + (GameState.ext && GameState.ext.monument ? 'M' : '') + view;
+        const sig = tiers.join('') + (night ? 'n' : 'd') + W + (GameState.ext && GameState.ext.monument ? 'M' : '') + (GameState.ext && GameState.ext.carousel ? 'K' : '') + view;
         if (!force && sig === citySig) return;
         const grown = [], prevT = {};
         ids.forEach((id, i) => { prevT[id] = cityPrevTiers[id] || 0; if (citySig && tiers[i] > prevT[id]) grown.push(id); cityPrevTiers[id] = tiers[i]; });
@@ -9067,7 +9138,7 @@
             <linearGradient id="cRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset=".5" stop-color="#f0abfc"/><stop offset="1" stop-color="#fbbf24"/></linearGradient>
             <radialGradient id="cityGlow" cx=".5" cy="1" r=".6"><stop offset="0" stop-color="${night ? '#6d28d9' : '#f59e0b'}" stop-opacity=".35"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></radialGradient></defs>
             <rect x="0" y="80" width="${W}" height="120" fill="url(#cityGlow)"/>${hills}${filler}
-            <g transform="translate(${OFF} 0)">${cityStars()}<g opacity=".85">${back}</g>${crane}${front}${view === 'old' && (occupied.length >= 3 || (GameState.ext && GameState.ext.monument)) ? cityPlaza() : ''}${buildFx}</g>
+            <g transform="translate(${OFF} 0)">${cityStars()}<g opacity=".85">${back}</g>${crane}${front}${view === 'old' && (occupied.length >= 3 || (GameState.ext && GameState.ext.monument)) ? cityPlaza() : ''}${view === 'biz' && GameState.ext && GameState.ext.carousel ? cityCarousel() : ''}${buildFx}</g>
             <g class="c-road"><rect x="0" y="183" width="${W}" height="3.4" fill="#1b2058"/><path d="M0 183 L${W} 183" stroke="#4b5bc0" stroke-width="0.5" opacity=".6"/><path d="M0 184.7 L${W} 184.7" stroke="#0a0c26" stroke-width="0.3" stroke-dasharray="0.3 4.7" opacity=".9"/></g>
             <g class="c-decor" transform="translate(${OFF} 0)">${cityStreetDecor(occupied)}</g>
             <g class="c-road c-road2"><rect x="0" y="186" width="${W}" height="14" fill="#0a0c26"/><path d="M0 186.5 L${W} 186.5" stroke="#3b4aa6" stroke-width="0.8" opacity=".7"/><path d="M0 191.5 L${W} 191.5" stroke="#fbbf24" stroke-width="0.6" stroke-dasharray="6 6" opacity=".45"/></g>
@@ -11853,6 +11924,23 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
     const PASS_DAILY_CAP = 150; // очки за мелкие действия в день (задания, вход, мини-игры — сверх лимита)
     const PASS_PREMIUM_MULT = 0.10; // премиум: +10% ко всему доходу до конца сезона
     const PASS_SEASON_NAMES = ['Золотой век', 'Звёздная ярмарка', 'Неоновый сезон', 'Эпоха изобретений', 'Морская торговля', 'Небесный фестиваль'];
+    // Эксклюзивы премиума по сезонам пропуска (по кругу, как и названия): питомец, эффект тапа, украшение города.
+    // Свой набор пока у «Звёздной ярмарки»; остальные сезоны — набор «Золотого века».
+    const PASS_EXTRAS_SET = {
+        gold: { pet: 'griffin', petName: 'Имперский Грифон', petShort: 'Грифон', petArt: 'pf_griffin',
+            petPerks: [['x_crown', '+5% ко всему доходу за каждый уровень (до +20%)'], ['e_star_path', '+15% к наградам мини-игр за уровень (до +60%)'], ['p_griffin_s3', 'Возвышается до ★★★ — с короной и золотыми крыльями'], ['x_pass_gold', 'Остаётся навсегда, купить отдельно нельзя']],
+            fx: 'crowns', fxTitle: 'Имперские короны', fxShort: 'Короны', fxArt: 'x_tap_crowns',
+            fxPerks: [['x_tap', 'Из-под пальца вылетают золотые короны'], ['x_gear', 'Эффекты тапа переключаются в окне пропуска'], ['x_pass_gold', 'Только у владельцев премиума']],
+            mon: 'monument', monTitle: 'Золотой монумент', monShort: 'Монумент', monArt: 'x_monument', monGot: 'Золотой монумент на площади города',
+            monPerks: [['b_city_hall', 'Статуя императора встаёт на площади Старого города'], ['x_rocket', 'Вместе с ним — сундук: 60 кристаллов, 10 сфер и 5 звёзд'], ['x_pass_gold', 'Остаётся в городе навсегда']] },
+        fair: { pet: 'starfox', petName: 'Звёздный Лис', petShort: 'Лис', petArt: 'pf_starfox',
+            petPerks: [['x_crown', '+5% ко всему доходу за каждый уровень (до +20%)'], ['x_comet', '+20% к дарам золотых комет за уровень (до +80%)'], ['p_starfox_s3', 'Возвышается до ★★★ — с короной и золотыми крыльями'], ['x_pass_gold', 'Остаётся навсегда, купить отдельно нельзя']],
+            fx: 'fireworks', fxTitle: 'Ярмарочный салют', fxShort: 'Салют', fxArt: 'x_tap_fireworks',
+            fxPerks: [['x_tap', 'При тапе в небо взлетают разноцветные залпы салюта'], ['x_gear', 'Эффекты тапа переключаются в окне пропуска'], ['x_pass_gold', 'Только у владельцев премиума']],
+            mon: 'carousel', monTitle: 'Звёздная карусель', monShort: 'Карусель', monArt: 'x_carousel', monGot: 'Звёздная карусель на площади Делового центра',
+            monPerks: [['b_city_hall', 'Карусель с огоньками встаёт на площади Делового центра'], ['x_rocket', 'Вместе с ней — сундук: 60 кристаллов, 10 сфер и 5 звёзд'], ['x_pass_gold', 'Остаётся в городе навсегда']] }
+    };
+    function passExtras(sid) { const i = ((((sid || passSeasonId()) - 1) % 6) + 6) % 6; return i === 1 ? PASS_EXTRAS_SET.fair : PASS_EXTRAS_SET.gold; }
     const PF = (t, n) => ({ t, n });
     const PASS_FREE = [PF('coins', 10), PF('gems', 2), PF('boost', 10), PF('coins', 15), PF('gems', 3), PF('sphere', 1), PF('coins', 20), PF('boost', 15), PF('gems', 3), PF('gems', 5),
         PF('coins', 25), PF('sphere', 1), PF('boost', 15), PF('coins', 30), PF('gems', 5), PF('coins', 30), PF('sphere', 2), PF('boost', 20), PF('coins', 40), PF('gems', 8),
@@ -11883,8 +11971,8 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
                 const lvl = passLevelOf(st.xp);
                 let got = 0;
                 for (let i = 0; i < lvl; i++) {
-                    if (!st.cf[i]) { passGrant(PASS_FREE[i], true); got++; }
-                    if (st.prem && !st.cp[i]) { passGrant(PASS_PREM[i], true); got++; }
+                    if (!st.cf[i]) { passGrant(PASS_FREE[i], true, st.s); got++; }
+                    if (st.prem && !st.cp[i]) { passGrant(PASS_PREM[i], true, st.s); got++; }
                 }
                 if (got) setTimeout(() => showToast(`Награды прошлого сезона пропуска выданы: ${got} шт.`, 'x_pass'), 1500);
             }
@@ -11992,18 +12080,18 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
     }
     // ===== Эксклюзивы премиум-пропуска: описание для окна-витрины =====
     const EXCLUSIVES = [
-        { id: 'griffin', art: 'pf_griffin', short: 'Грифон', title: 'Имперский Грифон', kind: 'Питомец', when: 'ступень 10', tier: 10,
-          own: () => getPetLevel('griffin') > 0,
-          perks: [['x_crown', '+5% ко всему доходу за каждый уровень (до +20%)'], ['e_star_path', '+15% к наградам мини-игр за уровень (до +60%)'], ['p_griffin_s3', 'Возвышается до ★★★ — с короной и золотыми крыльями'], ['x_pass_gold', 'Остаётся навсегда, купить отдельно нельзя']] },
+        { id: 'pet', get art() { return passExtras().petArt; }, get short() { return passExtras().petShort; }, get title() { return passExtras().petName; }, kind: 'Питомец', when: 'ступень 10', tier: 10,
+          own: () => getPetLevel(passExtras().pet) > 0,
+          get perks() { return passExtras().petPerks; } },
         { id: 'skin', get img() { return skinSrc(passSeasonSkin().id, false); }, short: 'Облик', get title() { return passSeasonSkin().name; }, kind: 'Облик монеты', when: 'ступень 25', tier: 25,
           own: () => (GameState.unlockedSkins || []).includes(passSeasonSkin().id),
           get perks() { return [['x_tap', '+70% к силе тапа'], ['x_crown', '+40% ко всему доходу'], ['tab_skins', passSeasonSkin().desc.replace(/^Эксклюзив[^:]*:\s*/, '')], ['x_pass_gold', 'Только в пропуске этого сезона — в каждом сезоне свой облик']]; } },
-        { id: 'tapfx', art: 'x_tap_crowns', short: 'Короны', title: 'Имперские короны', kind: 'Эффект тапа', when: 'ступень 20', tier: 20, demo: 'crowns',
-          own: () => !!ext18().tapCrowns,
-          perks: [['x_tap', 'Из-под пальца вылетают золотые короны'], ['x_gear', 'Включается и выключается в окне пропуска'], ['x_pass_gold', 'Только у владельцев премиума']] },
-        { id: 'monument', art: 'x_monument', short: 'Монумент', title: 'Золотой монумент', kind: 'Украшение города', when: 'ступень 30', tier: 30,
-          own: () => !!ext18().monument,
-          perks: [['b_city_hall', 'Статуя императора встаёт на центральной площади'], ['x_rocket', 'Вместе с ним — сундук: 60 кристаллов, 10 сфер и 5 звёзд'], ['x_pass_gold', 'Остаётся в городе навсегда']] },
+        { id: 'tapfx', get art() { return passExtras().fxArt; }, get short() { return passExtras().fxShort; }, get title() { return passExtras().fxTitle; }, kind: 'Эффект тапа', when: 'ступень 20', tier: 20, get demo() { return passExtras().fx; },
+          own: () => tapFxOwned().includes(passExtras().fx),
+          get perks() { return passExtras().fxPerks; } },
+        { id: 'monument', get art() { return passExtras().monArt; }, get short() { return passExtras().monShort; }, get title() { return passExtras().monTitle; }, kind: 'Украшение города', when: 'ступень 30', tier: 30,
+          own: () => !!ext18()[passExtras().mon],
+          get perks() { return passExtras().monPerks; } },
         { id: 'box', art: 'x_pass_box', short: 'Шкатулка', title: 'Шкатулка дня', kind: 'Подарок каждый день', when: 'каждый день', tier: 0,
           own: () => passPremiumActive(),
           perks: [['cur_gem', '+3 кристалла каждый день'], ['cur_coin', '+30 минут дохода каждый день'], ['ui_daily', 'Открывается в окне пропуска, пока активен премиум']] }
@@ -12056,6 +12144,15 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
         if (c.onMount) c.onMount(m);
         m.classList.remove('hidden');
         // живое превью эффекта корон прямо в окне
+        if (c.demo === 'fireworks') {
+            const hero = m.querySelector('.sc-hero');
+            showcaseDemoT = setInterval(() => {
+                if (m.classList.contains('hidden')) { clearInterval(showcaseDemoT); return; }
+                const r = hero.getBoundingClientRect();
+                lastFwAt = 0; spawnTapFireworks(r.left + r.width * (0.3 + Math.random() * 0.4), r.top + r.height * (0.45 + Math.random() * 0.2), performance.now());
+                const last = document.body.lastElementChild; if (last && last.classList.contains('tap-fw')) last.style.zIndex = '400';
+            }, 320);
+        }
         if (c.demo === 'crowns') {
             const hero = m.querySelector('.sc-hero');
             showcaseDemoT = setInterval(() => {
@@ -12072,40 +12169,42 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
     }
 
     function passRewardHtml(r) {
-        if (r.t === 'chest') return `${artInl('x_monument', '')} Монумент`;
-        if (r.t === 'pet') return `${artInl('p_griffin', '')} Грифон`;
-        if (r.t === 'tapfx') return `${artInl('x_tap_crowns', '')} Короны`;
+        const X = passExtras();
+        if (r.t === 'chest') return `${artInl(X.monArt, '')} ${X.monShort}`;
+        if (r.t === 'pet') return `${artInl('p_' + X.pet, '')} ${X.petShort}`;
+        if (r.t === 'tapfx') return `${artInl(X.fxArt, '')} ${X.fxShort}`;
         if (r.t === 'skin') return `<img class="art-ic inl" src="${skinSrc(passSeasonSkin().id, false)}" alt=""> Облик`;
         const ic = { coins: curIc('coin'), gems: curIc('gem'), sphere: curIc('sphere'), chips: curIc('chip'), boost: artInl('ui_boost', '') }[r.t] || '';
         if (r.t === 'coins') return `${ic} ${r.n} мин`;
         if (r.t === 'boost') return `${ic} x2 ${r.n} мин`;
         return `${ic} +${r.n}`;
     }
-    function passGrant(r, silent) {
+    function passGrant(r, silent, sid) {
         let txt = '';
+        const X = passExtras(sid);
         if (r.t === 'coins') { const v = gainCoins(incomeMinutes(r.n)); txt = `+${formatNumber(v)} 🪙`; }
         else if (r.t === 'gems') { GameState.prestigeGems += r.n; txt = `+${r.n} 💎`; }
         else if (r.t === 'sphere') { GameState.sugarLumps = (GameState.sugarLumps || 0) + r.n; txt = `+${r.n} 🔮`; }
         else if (r.t === 'chips') { GameState.heavenlyChips = (GameState.heavenlyChips || 0) + r.n; txt = `+${r.n} 🌟`; }
         else if (r.t === 'boost') { GameState.boostActiveUntil = Math.max(Date.now(), GameState.boostActiveUntil || 0) + r.n * 60000; txt = `x2 к доходу на ${r.n} мин`; }
         else if (r.t === 'chest') {
-            const ex = ext18(); const had = !!ex.monument; ex.monument = true;
-            txt = PASS_CHEST.map(x => passGrant(x, true)).join(', ') + (had ? '' : ' и Золотой монумент на площади города');
+            const ex = ext18(); const had = !!ex[X.mon]; ex[X.mon] = true;
+            txt = PASS_CHEST.map(x => passGrant(x, true)).join(', ') + (had ? '' : ' и ' + X.monGot);
             if (!had) setTimeout(() => { try { updateCity(true); } catch (e) {} }, 50);
         } else if (r.t === 'pet') {
-            if (getPetLevel('griffin') > 0) { GameState.prestigeGems += 30; txt = 'Грифон уже ваш — вместо него +30 💎'; }
-            else { if (!GameState.pets) GameState.pets = {}; GameState.pets.griffin = 1; GameState.selectedPet = 'griffin'; txt = 'Имперский Грифон теперь ваш питомец!'; try { updatePetCompanionUI(); renderPetsList(); } catch (e) {} }
+            if (getPetLevel(X.pet) > 0) { GameState.prestigeGems += 30; txt = `${X.petShort} уже ваш — вместо него +30 💎`; }
+            else { if (!GameState.pets) GameState.pets = {}; GameState.pets[X.pet] = 1; GameState.selectedPet = X.pet; txt = `${X.petName} теперь ваш питомец!`; try { updatePetCompanionUI(); renderPetsList(); } catch (e) {} }
         } else if (r.t === 'skin') {
             if (!GameState.unlockedSkins) GameState.unlockedSkins = ['classic'];
             const psk = passSeasonSkin();
             if (GameState.unlockedSkins.includes(psk.id)) { GameState.prestigeGems += 35; txt = 'облик уже ваш — вместо него +35 💎'; }
             else { GameState.unlockedSkins.push(psk.id); txt = `облик монеты «${psk.name}»!`; try { renderSkinsList(); } catch (e) {} }
         } else if (r.t === 'tapfx') {
-            const ex = ext18();
-            if (ex.tapCrowns) { GameState.prestigeGems += 20; txt = 'Короны уже ваши — вместо них +20 💎'; }
-            else { ex.tapCrowns = true; ex.tapCrownsOn = true; txt = 'эффект «Имперские короны» при тапе!'; }
+            const ex = ext18(), key = X.fx === 'crowns' ? 'tapCrowns' : 'tapFireworks';
+            if (ex[key]) { GameState.prestigeGems += 20; txt = `${X.fxShort} уже ваш${X.fx === 'crowns' ? 'и' : ''} — вместо ${X.fx === 'crowns' ? 'них' : 'него'} +20 💎`; }
+            else { ex[key] = true; ex.tapFxSel = X.fx; txt = `эффект «${X.fxTitle}» при тапе!`; }
         }
-        if (!silent) showToast(`Имперский пропуск: ${txt}`, r.t === 'chest' ? 'x_monument' : r.t === 'pet' ? 'p_griffin' : r.t === 'tapfx' ? 'x_tap_crowns' : 'x_pass');
+        if (!silent) showToast(`Имперский пропуск: ${txt}`, r.t === 'chest' ? X.monArt : r.t === 'pet' ? 'p_' + X.pet : r.t === 'tapfx' ? X.fxArt : 'x_pass');
         return txt;
     }
     function passClaim(i, prem, quiet) {
@@ -12243,8 +12342,9 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
     function showPremiumCinematic(seasonName) {
         const en = window.I18N && window.I18N.lang === 'en';
         const word = en ? 'PREMIUM' : 'ПРЕМИУМ';
-        const perks = [['assets/icons/pf_griffin.svg', 'Грифон'], [skinSrc(passSeasonSkin().id, false), 'Облик сезона'], ['assets/icons/x_tap_crowns.svg', 'Короны при тапе'],
-            ['assets/icons/x_monument.svg', 'Монумент'], ['assets/icons/x_pass_box.svg', 'Шкатулка дня'], ['assets/icons/x_crown.svg', `+${Math.round(PASS_PREMIUM_MULT * 100)}% к доходу`]];
+        const X = passExtras();
+        const perks = [[`assets/icons/${X.petArt}.svg`, X.petShort], [skinSrc(passSeasonSkin().id, false), 'Облик сезона'], [`assets/icons/${X.fxArt}.svg`, `${X.fxShort} при тапе`],
+            [`assets/icons/${X.monArt}.svg`, X.monShort], ['assets/icons/x_pass_box.svg', 'Шкатулка дня'], ['assets/icons/x_crown.svg', `+${Math.round(PASS_PREMIUM_MULT * 100)}% к доходу`]];
         const ov = document.createElement('div');
         ov.className = 'prem-cine';
         ov.innerHTML = `<canvas class="pc-cv"></canvas><div class="pc-rays"></div><div class="pc-flash"></div>
@@ -12341,11 +12441,11 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
                     ${EXCLUSIVES.map(x => `<button class="ps-excl-item ${x.own() ? 'own' : ''}" data-excl="${x.id}">${x.img ? `<img class="art-ic inl" src="${x.img}" alt="">` : artInl(x.art, '')}<b>${x.short}</b><small>${x.own() ? '✓ ваше' : x.when}</small></button>`).join('')}
                 </div>
                 <div class="ps-excl-hint">Нажмите на награду, чтобы узнать, что она даёт</div>
-                ${ext18().tapCrowns ? `<button class="ps-toggle" id="btn-pass-crowns">Короны при тапе: <b>${ext18().tapCrownsOn !== false ? 'вкл' : 'выкл'}</b></button>` : ''}
+                ${tapFxOwned().length ? `<button class="ps-toggle" id="btn-pass-crowns">Эффект тапа: <b>${TAP_FX_NAMES[tapFxSel()]}</b></button>` : ''}
             </div>
             ${passBoxReady(st) ? `<button class="ps-bonus ps-box" id="btn-pass-box">${artInl('x_pass_box', '')} Открыть шкатулку дня: +3 ${curIc('gem')} и 30 мин дохода</button>` : ''}
             ${st.prem ? `<div class="ps-prem on">${artInl('x_pass_gold', '')}<div><b>Премиум активен</b><small>+${Math.round(PASS_PREMIUM_MULT * 100)}% ко всему доходу до конца сезона и вторая линейка наград</small></div></div>`
-                : canBuy ? `<div class="ps-prem">${artInl('x_pass_gold', '')}<div><b>Премиум-пропуск</b><small>Грифон, облик «Императорский Дракон», короны при тапе, монумент в городе, шкатулка каждый день, ~180 ${curIc('gem')}, сферы и звёзды. +${Math.round(PASS_PREMIUM_MULT * 100)}% к доходу до конца сезона. Награды за пройденные ступени тоже откроются.</small></div><button class="shop-btn" id="btn-pass-buy">${shopPriceLabel('imperial_pass')}</button></div>` : ''}
+                : canBuy ? `<div class="ps-prem">${artInl('x_pass_gold', '')}<div><b>Премиум-пропуск</b><small>${passExtras().petShort}, облик «${passSeasonSkin().name}», ${passExtras().fxShort.toLowerCase()} при тапе, ${passExtras().monShort.toLowerCase()} в городе, шкатулка каждый день, ~180 ${curIc('gem')}, сферы и звёзды. +${Math.round(PASS_PREMIUM_MULT * 100)}% к доходу до конца сезона. Награды за пройденные ступени тоже откроются.</small></div><button class="shop-btn" id="btn-pass-buy">${shopPriceLabel('imperial_pass')}</button></div>` : ''}
             <div class="ps-actions">
                 <button class="btn-primary" id="btn-pass-all" ${ready ? '' : 'disabled'}>Забрать всё${ready ? ` (${ready})` : ''}</button>
                 <button class="btn-ad-x2" id="btn-pass-ad" ${adUsed ? 'disabled' : ''}>${artInl('lg_ad', '')} ${adUsed ? 'Завтра снова' : '+50 очков'}</button>
@@ -12397,7 +12497,7 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
             if (e.target.closest('#btn-pass-box')) { initAudio(); passClaimBox(); return; }
             const ex1 = e.target.closest('[data-excl]');
             if (ex1) { initAudio(); playSound('tap'); openExclusive(ex1.dataset.excl); return; }
-            if (e.target.closest('#btn-pass-crowns')) { const ex = ext18(); ex.tapCrownsOn = ex.tapCrownsOn === false; playSound('tap'); afterPassChange(); return; }
+            if (e.target.closest('#btn-pass-crowns')) { const ex = ext18(), order = [...tapFxOwned(), 'off']; ex.tapFxSel = order[(order.indexOf(tapFxSel()) + 1) % order.length]; ex.tapCrownsOn = true; playSound('tap'); afterPassChange(); return; }
             if (e.target.closest('#btn-pass-buy')) { initAudio(); buyProduct('imperial_pass'); return; }
             if (e.target.closest('#btn-pass-ad')) {
                 const st = passState();

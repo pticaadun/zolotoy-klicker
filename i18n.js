@@ -7,6 +7,25 @@
 (function () {
     'use strict';
     const EN_EXACT = {
+    "Звёздный Лис": "Star Fox",
+    "Комета": "Comet",
+    "Эксклюзив пропуска сезона «Звёздная ярмарка». Ловкий лис с хвостом-звездой: усиливает весь доход и дары золотых комет.": "Exclusive of the «Star Fair» pass season. A nimble fox with a star tail: boosts all income and golden comet gifts.",
+    "Хвост-звезда к удаче! 🌟": "A star tail for luck! 🌟",
+    "Чую комету — лови! ☄️": "I smell a comet — catch it! ☄️",
+    "Ярмарка открыта! 🎠": "The fair is open! 🎠",
+    "+20% к дарам золотых комет за уровень (до +80%)": "+20% to golden comet gifts per level (up to +80%)",
+    "Ярмарочный салют": "Fair Fireworks",
+    "Салют": "Fireworks",
+    "Лис": "Fox",
+    "При тапе в небо взлетают разноцветные залпы салюта": "Colorful fireworks burst into the sky when you tap",
+    "Эффекты тапа переключаются в окне пропуска": "Tap effects are switched in the pass window",
+    "Звёздная карусель": "Star Carousel",
+    "Карусель": "Carousel",
+    "Карусель с огоньками встаёт на площади Делового центра": "A carousel with lights appears on the Business District square",
+    "Вместе с ней — сундук: 60 кристаллов, 10 сфер и 5 звёзд": "Along with it — a chest: 60 crystals, 10 spheres and 5 stars",
+    "Статуя императора встаёт на площади Старого города": "The emperor's statue appears on the Old Town square",
+    "Звёздная карусель на площади Делового центра": "Star Carousel on the Business District square",
+    "Золотой монумент на площади города": "Golden monument on the city square",
     "Золотой Кликер 1.0": "Golden Clicker 1.0",
     "✨ ЧТО ЕСТЬ В ИГРЕ": "✨ WHAT'S IN THE GAME",
     "👆 Тапай по монете: 30+ улучшений клика, критические удары, комбо и «Огонь»": "👆 Tap the coin: 30+ tap upgrades, critical hits, combo and «Fire»",
@@ -2398,6 +2417,12 @@
 "Язык / Language": "Language / Язык", "с": "s", "ч": "h", "🏆 Рейтинг игроков работает внутри Яндекс Игр — там вы увидите настоящих игроков и своё место среди них.": "🏆 The player leaderboard works inside Yandex Games — there you'll see real players and your place among them.", "Загрузка рейтинга...": "Loading the leaderboard...", "Пока в рейтинге никого нет — станьте первым!": "No one is on the leaderboard yet — be the first!", "Не удалось загрузить рейтинг. Чтобы попасть в рейтинг, войдите в аккаунт Яндекса.": "Couldn't load the leaderboard. Sign in to your Yandex account to join it.", "Игрок": "Player", "Вы": "You", "(вы)": "(you)", "Лавка Императора": "Emperor's Shop", "Поддержите империю и ускорьте её рост": "Support the empire and speed up its growth", "Магазин": "Shop", "ХИТ": "HIT", "КУПЛЕНО": "OWNED", "x2 на 1 час": "x2 for 1 hour", "Можно купить один раз": "One-time purchase", "Реклама между этапами отключена. Видео за награды — по желанию.": "Ads between stages are off. Rewarded videos are optional.", "💎 Кристаллы": "💎 Crystals", "ПОПУЛЯРНОЕ": "POPULAR", "МАКСИМУМ": "MAXIMUM", "Покупки привязаны к аккаунту Яндекса и восстанавливаются сами на любом устройстве.": "Purchases are linked to your Yandex account and restore automatically on any device.", "✓ Куплено": "✓ Owned", "Купите 1, 50, 100, 150 и 200 уровней каждого здания. Здесь видны полученные и ближайшие цели.": "Buy 1, 50, 100, 150 and 200 levels of each building. Unlocked and next goals are shown here."
 };
     const EN_PATTERNS = [
+["+{0}% ко всему доходу и +{1}% к дарам комет",
+"+{0}% to all income and +{1}% to comet gifts"
+],
+["Эффект тапа: {0}",
+"Tap effect: {0}"
+],
 ["☁️ Облако VK: сохранено в {0}",
 "☁️ VK cloud: saved at {0}"
 ],

@@ -9541,3 +9541,15 @@ html.plat-vk #btn-leaderboard { display: none !important; }
 .vk-cloud-status { margin: 8px 2px 0; font-size: 12px; color: #86efac; text-align: center; }
 .vk-cloud-status.bad { color: #fca5a5; }
 .cloud-card h3 { margin: 6px 0 8px; }
+/* Эффект тапа «Ярмарочный салют» (эксклюзив пропуска «Звёздная ярмарка») */
+.tap-fw { position: fixed; width: 0; height: 0; pointer-events: none; z-index: 70; }
+.tap-fw i { position: absolute; left: -9px; top: -2px; width: 18px; height: 4px; border-radius: 3px; background: linear-gradient(90deg, transparent, var(--c) 55%, #fff);
+    box-shadow: 0 0 8px var(--c); transform: rotate(var(--a)) translateX(0); animation: tapFw .85s cubic-bezier(.15,.8,.3,1) forwards; }
+.tap-fw b { position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; border-radius: 50%;
+    background: radial-gradient(circle, #fff, rgba(253, 224, 71, .7) 40%, transparent 70%); animation: tapFwCore .45s ease-out forwards; }
+@keyframes tapFw { 0% { transform: rotate(var(--a)) translateX(0) scale(1); opacity: 1; } 70% { opacity: 1; } 100% { transform: rotate(var(--a)) translateX(52px) scale(.5); opacity: 0; } }
+@keyframes tapFwCore { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+/* карусель на площади: лошадки качаются вверх-вниз */
+.city-carousel .crs-horse { animation: crsBob 1.6s ease-in-out infinite; }
+@keyframes crsBob { 50% { transform: translateY(-1.6px); } }
+@media (prefers-reduced-motion: reduce) { .city-carousel .crs-horse { animation: none; } }
