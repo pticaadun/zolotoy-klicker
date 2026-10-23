@@ -1236,7 +1236,7 @@
             artifacts: [
                 { id: 'phoenix_feather', name: 'Перо Феникса', icon: '🪶', maxLvl: 3, cost: 3, desc: 'Бесплатное Колесо Фортуны на 3 минуты чаще за уровень', getBonusText: lvl => `Бесплатно раз в ${25 - lvl * 3} мин` },
                 { id: 'clover_abundance', name: 'Клевер Изобилия', icon: '🍀', maxLvl: 3, cost: 5, desc: 'События приходят на 25% чаще, а сейф даёт на 35% больше монет за уровень', getBonusText: lvl => `События +${lvl * 25}% чаще, сейф +${lvl * 35}%` },
-                { id: 'philosopher_stone', name: 'Философский Камень', icon: '🪨', maxLvl: 3, cost: 9, desc: 'Каждый кристалл даёт +7.5%/+10%/+12.5% к доходу вместо +5%!', getBonusText: lvl => `+${5 + lvl * 2.5}% за кристалл` },
+                { id: 'philosopher_stone', name: 'Философский Камень', icon: '🪨', maxLvl: 3, cost: 9, desc: 'Каждый кристалл даёт +3.75%/+5%/+6.25% к доходу вместо +2.5%!', getBonusText: lvl => `+${2.5 + lvl * 1.25}% за кристалл` },
                 { id: 'city_charter', name: 'Городская Хартия', icon: '📜', maxLvl: 3, cost: 5, desc: 'Монетки над зданиями города дают на 50% больше и появляются на 15% чаще за уровень', getBonusText: lvl => lvl ? `Монетки города +${lvl * 50}%, чаще на ${lvl * 15}%` : 'Не изучено' },
                 { id: 'time_lord', name: 'Повелитель Времени', icon: '⌛', maxLvl: 1, cost: 15, desc: 'Рекламный буст x2 и мега-буст x5 длятся в 2 раза дольше!', getBonusText: lvl => lvl ? 'Бусты длятся в 2 раза дольше' : 'Не изучено' }
             ]
@@ -1338,7 +1338,11 @@
     const IS_DEV = location.protocol === 'file:' || ['localhost', '127.0.0.1', ''].includes(location.hostname) || window.__TEST_BUILD__ === true;
     // Платформа: Яндекс Игры (по умолчанию) или VK (index.html VK-сборки подключает vk-platform.js)
     const IS_VK = window.__PLATFORM__ === 'vk';
-    if (IS_VK) document.documentElement.classList.add('plat-vk');
+    if (IS_VK) {
+        document.documentElement.classList.add('plat-vk');
+        // рейтинга в VK-версии нет — убираем его из подписи кнопки статистики
+        const st = document.getElementById('btn-stats'); if (st) st.title = 'Статистика';
+    }
 
     // --- ПАУЗА ИГРЫ (реклама, свёрнутая вкладка) ---
     const gamePauseReasons = new Set();
@@ -2122,7 +2126,7 @@
 
         // Артефакт Философский камень и кристаллы
         const stoneLvl = (GameState.artifacts && GameState.artifacts.philosopher_stone) || 0;
-        const bonusPerGem = 0.05 + (stoneLvl * 0.025); // +5%, +7.5%, +10%, +12.5%
+        const bonusPerGem = 0.025 + (stoneLvl * 0.0125); // +2.5%, +3.75%, +5%, +6.25%
         // Бонус считается от всех когда-либо полученных кристаллов: трата на питомцев/скины не снижает доход
         const gemsForBonus = (GameState.prestigeGems || 0) + (GameState.gemsSpent || 0);
         mult *= (1 + (gemsForBonus * bonusPerGem));
@@ -4711,7 +4715,7 @@
             version: '1.5',
             title: 'Обновление 1.5',
             items: [
-                '📅 Недельный рейтинг: каждую неделю — новая гонка, у новичков есть шанс попасть в топ',
+                ...(IS_VK ? [] : ['📅 Недельный рейтинг: каждую неделю — новая гонка, у новичков есть шанс попасть в топ']),
                 '🌌 Итоги забега перед вознесением: время, лучший доход, награда и сравнение с прошлым',
                 '🔊 Новые звуки монет, комет и достижений, а на телефоне — вибрация (выключается в настройках)',
                 '🏛️ «Спонтанный Капитал» строит до 25 уровней сразу',
@@ -9197,7 +9201,7 @@
         { id: 'ad_boost', at: 300, sel: ['#btn-reward-ad'] },
         { id: 'wheel', at: 1000, sel: ['#btn-wheel-open'], name: '🎡 Колесо Фортуны' },
         { id: 'shop', at: 1000, sel: ['#shop-fab'] },
-        { id: 'stats', at: 10000, oldAt: 5000, sel: ['#btn-stats', '#btn-leaderboard', '[data-tab="achievements-tab"]'], name: '🏆 Достижения и рейтинг' },
+        { id: 'stats', at: 10000, oldAt: 5000, sel: ['#btn-stats', '#btn-leaderboard', '[data-tab="achievements-tab"]'], name: IS_VK ? '🏆 Достижения' : '🏆 Достижения и рейтинг' },
         { id: 'news', at: 20000, sel: ['#news-ticker-container'] },
         { id: 'gems', at: 50000, sel: ['#prestige-badge'], orIf: () => (GameState.prestigeGems || 0) > 0 || (GameState.gemsSpent || 0) > 0 },
         { id: 'pets', at: 1000000, oldAt: 100000, sel: ['[data-tab="pets-tab"]', '#pet-companion'], name: '🐾 Питомцы' },
@@ -15646,7 +15650,7 @@ body.low-fx .coin-3d.skin-${id} .coin-inner,body.modal-open .coin-3d.skin-${id} 
             if (!body || !modalCurrInfo) return;
             const gemsEver = (GameState.prestigeGems || 0) + (GameState.gemsSpent || 0);
             const stoneLvl = (GameState.artifacts && GameState.artifacts.philosopher_stone) || 0;
-            const perGem = 5 + stoneLvl * 2.5;
+            const perGem = 2.5 + stoneLvl * 1.25;
             let html = '';
             if (kind === 'gems') {
                 title.innerHTML = `${curIc('gem')} <span>Престижные Кристаллы</span>`;

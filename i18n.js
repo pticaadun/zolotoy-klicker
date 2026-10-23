@@ -7,6 +7,8 @@
 (function () {
     'use strict';
     const EN_EXACT = {
+    "Каждый кристалл даёт +3.75%/+5%/+6.25% к доходу вместо +2.5%!": "Each crystal gives +3.75%/+5%/+6.25% income instead of +2.5%!",
+    "Статистика": "Statistics",
     "Кибернетическая ищейка: роет землю под городом и приносит клады — монеты, а иногда кристаллы!": "A cyber sniffer dog: digs under the city and brings treasure — coins, and sometimes crystals!",
     "Гав! Откопал клад! 🦴": "Woof! Dug up a treasure! 🦴",
     "Вуф! Чую золото под мостовой! 🐾": "Woof! I smell gold under the pavement! 🐾",
