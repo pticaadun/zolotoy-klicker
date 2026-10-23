@@ -9532,3 +9532,8 @@ html.plat-vk #btn-leaderboard { display: none !important; }
 @keyframes skyPulse2 { 0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(.01deg); opacity: .95; } 50% { transform: translate3d(0, 0, 0) scale(1.08) rotate(.02deg); opacity: 1; } }
 /* Переключатель районов на ПК — в левом нижнем углу города, чтобы не закрывать площадь со статуей в центре */
 .district-bar.in-city { left: 12px; transform: none; }
+/* Ускорение времени (монеты за кристаллы) */
+.shop-tw-note { font-size: 12px; color: #c4b5fd; opacity: .85; margin: -4px 2px 10px; line-height: 1.35; }
+.shop-tw-card .shop-gem-amount { font-size: 15px; white-space: nowrap; }
+.shop-tw-btn.cant { opacity: .5; filter: grayscale(.4); }
+.shop-tw-btn.armed { background: linear-gradient(180deg, #fb923c, #ea580c) !important; color: #fff !important; }

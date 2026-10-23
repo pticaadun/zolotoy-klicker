@@ -7,6 +7,12 @@
 (function () {
     'use strict';
     const EN_EXACT = {
+    "Ускорение времени": "Time Warp",
+    "Мгновенно получите монеты — столько, сколько империя заработает за это время. Бонус кристаллов к доходу не уменьшается.": "Instantly get coins — as much as your empire earns in that time. The crystal income bonus is not reduced.",
+    "4 часа дохода": "4 hours of income",
+    "12 часов дохода": "12 hours of income",
+    "ВЫГОДНО": "BEST VALUE",
+    "Точно?": "Sure?",
     "Каждый кристалл даёт +3.75%/+5%/+6.25% к доходу вместо +2.5%!": "Each crystal gives +3.75%/+5%/+6.25% income instead of +2.5%!",
     "Статистика": "Statistics",
     "Кибернетическая ищейка: роет землю под городом и приносит клады — монеты, а иногда кристаллы!": "A cyber sniffer dog: digs under the city and brings treasure — coins, and sometimes crystals!",
@@ -2365,6 +2371,12 @@
 "Язык / Language": "Language / Язык", "с": "s", "ч": "h", "🏆 Рейтинг игроков работает внутри Яндекс Игр — там вы увидите настоящих игроков и своё место среди них.": "🏆 The player leaderboard works inside Yandex Games — there you'll see real players and your place among them.", "Загрузка рейтинга...": "Loading the leaderboard...", "Пока в рейтинге никого нет — станьте первым!": "No one is on the leaderboard yet — be the first!", "Не удалось загрузить рейтинг. Чтобы попасть в рейтинг, войдите в аккаунт Яндекса.": "Couldn't load the leaderboard. Sign in to your Yandex account to join it.", "Игрок": "Player", "Вы": "You", "(вы)": "(you)", "Лавка Императора": "Emperor's Shop", "Поддержите империю и ускорьте её рост": "Support the empire and speed up its growth", "Магазин": "Shop", "ХИТ": "HIT", "КУПЛЕНО": "OWNED", "x2 на 1 час": "x2 for 1 hour", "Можно купить один раз": "One-time purchase", "Реклама между этапами отключена. Видео за награды — по желанию.": "Ads between stages are off. Rewarded videos are optional.", "💎 Кристаллы": "💎 Crystals", "ПОПУЛЯРНОЕ": "POPULAR", "МАКСИМУМ": "MAXIMUM", "Покупки привязаны к аккаунту Яндекса и восстанавливаются сами на любом устройстве.": "Purchases are linked to your Yandex account and restore automatically on any device.", "✓ Куплено": "✓ Owned", "Купите 1, 50, 100, 150 и 200 уровней каждого здания. Здесь видны полученные и ближайшие цели.": "Buy 1, 50, 100, 150 and 200 levels of each building. Unlocked and next goals are shown here."
 };
     const EN_PATTERNS = [
+["⏩ Ускорение времени: +{0} 🪙",
+"⏩ Time Warp: +{0} 🪙"
+],
+["Нужно {0} 💎 — у вас {1} 💎",
+"Need {0} 💎 — you have {1} 💎"
+],
 ["Каждые {0} с приносит клад: {1} с дохода",
 "Every {0} s brings treasure: {1} s of income"
 ],

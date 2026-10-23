@@ -4416,6 +4416,32 @@
         return IS_DEV ? 'Тест' : '—';
     }
 
+    // Ускорение времени: монеты за кристаллы (по текущему доходу). Бонус кристаллов к доходу считается от всех полученных — трата его не снижает.
+    const TIME_WARPS = [
+        { min: 60, cost: 5, name: '1 час дохода', glow: 'g1', tag: '' },
+        { min: 240, cost: 15, name: '4 часа дохода', glow: 'g2', tag: 'ВЫГОДНО' },
+        { min: 720, cost: 35, name: '12 часов дохода', glow: 'g3', tag: 'МАКСИМУМ' }
+    ];
+    function buyTimeWarp(i, btnEl) {
+        const w = TIME_WARPS[i]; if (!w) return;
+        initAudio();
+        if (GameState.prestigeGems < w.cost) { playSound('tap'); showToast(`Нужно ${w.cost} 💎 — у вас ${formatNumber(GameState.prestigeGems)} 💎`); return; }
+        // защита от случайного нажатия: второе нажатие в течение 3 секунд подтверждает
+        if (!btnEl.__armed) {
+            btnEl.__armed = true; btnEl.__html = btnEl.innerHTML; btnEl.classList.add('armed'); btnEl.textContent = 'Точно?';
+            playSound('tap');
+            clearTimeout(btnEl.__t); btnEl.__t = setTimeout(() => { btnEl.__armed = false; btnEl.classList.remove('armed'); btnEl.innerHTML = btnEl.__html; }, 3000);
+            return;
+        }
+        clearTimeout(btnEl.__t);
+        GameState.prestigeGems -= w.cost; GameState.gemsSpent = (GameState.gemsSpent || 0) + w.cost;
+        const got = gainCoins(incomeMinutes(w.min));
+        playSound('bonus');
+        const r = btnEl.getBoundingClientRect();
+        spawnConfetti(r.left + r.width / 2, r.top);
+        showToast(`⏩ Ускорение времени: +${formatNumber(got)} 🪙`);
+        updateUI(); saveGame(); renderShop(); renderUpgradeLists(); checkAchievements();
+    }
     function renderShop() {
         const body = document.getElementById('shop-body');
         if (!body) return;
@@ -4476,17 +4502,33 @@
                     </div>`).join('')}
             </div>
 
+            <div class="shop-keep">
+                <div class="shop-section-title">${artInl('x_time', '⏩')} Ускорение времени</div>
+                <div class="shop-tw-note">Мгновенно получите монеты — столько, сколько империя заработает за это время. Бонус кристаллов к доходу не уменьшается.</div>
+                <div class="shop-gems-grid">
+                    ${TIME_WARPS.map((w, i) => `
+                        <div class="shop-gem-card shop-tw-card ${w.glow}">
+                            ${w.tag ? `<span class="shop-gem-tag">${w.tag}</span>` : ''}
+                            <div class="shop-gem-icon">${artIcon('x_time', '⏩')}</div>
+                            <div class="shop-gem-amount">+${formatNumber(incomeMinutes(w.min))} ${curIc('coin')}</div>
+                            <div class="shop-gem-name">${w.name}</div>
+                            <button class="shop-btn shop-tw-btn ${GameState.prestigeGems >= w.cost ? '' : 'cant'}" data-tw="${i}">${w.cost} ${curIc('gem')}</button>
+                        </div>`).join('')}
+                </div>
+            </div>
+
             <p class="shop-note">${IS_VK ? (!payments && !IS_DEV ? 'Покупки за голоса недоступны на этом устройстве.' : 'Оплата голосами. Покупки сохраняются вместе с прогрессом.') : (!payments && !IS_DEV ? 'Магазин работает внутри Яндекс Игр.' : 'Покупки привязаны к аккаунту Яндекса и восстанавливаются сами на любом устройстве.')}</p>`;
         // Требование 1.13.6: в игре только те товары, что активны в консоли разработчика
         if (catalogLoaded) body.querySelectorAll('[data-product]').forEach(b => {
             if (!productPrices[b.getAttribute('data-product')]) { const card = b.closest('.shop-featured, .shop-row-card, .shop-gem-card'); if (card) card.remove(); }
         });
-        if (payUnavailable) body.querySelectorAll('.shop-featured, .shop-row-card:not(.adchest-card), .shop-gem-card, .shop-section-title, .shop-gems-grid').forEach(el => { if (!el.closest('.adchest-card') && !el.querySelector('[data-adchest]')) el.remove(); });
+        if (payUnavailable) body.querySelectorAll('.shop-featured, .shop-row-card:not(.adchest-card), .shop-gem-card, .shop-section-title, .shop-gems-grid').forEach(el => { if (el.closest('.shop-keep')) return; if (!el.closest('.adchest-card') && !el.querySelector('[data-adchest]')) el.remove(); });
         const dot = document.getElementById('shop-fab-dot');
         if (dot) dot.classList.toggle('hidden', !!(GameState.starterBought || payUnavailable) && adChestLeft() <= 0);
         if (!body.__ac) {
             body.__ac = true;
             body.addEventListener('click', (e) => {
+                const tw = e.target.closest('[data-tw]'); if (tw) { e.stopPropagation(); buyTimeWarp(+tw.dataset.tw, tw); return; }
                 const a = e.target.closest('[data-adchest]'); if (!a || a.disabled) return;
                 e.stopPropagation(); initAudio(); playSound('tap');
                 if (a.dataset.adchest === 'open') openAdChest(); else openAdChestOdds();
